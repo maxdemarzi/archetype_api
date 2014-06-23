@@ -11,6 +11,8 @@ import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.tooling.GlobalGraphOperations;
 import pe.archety.Labels;
 
+import java.net.URLEncoder;
+
 import static pe.archety.ArchetypeServer.TEXT_PLAIN;
 
 public class WikipediaHandler implements HttpHandler {
@@ -35,7 +37,9 @@ public class WikipediaHandler implements HttpHandler {
                     if (!( page.hasProperty( URL ) ) ) {
                         i++;
                         String url = prefix + page.getProperty( TITLE );
-                        page.setProperty( URL, url.replace(" ", "_") );
+                        url = url.replace(" ", "_");
+                        url = URLEncoder.encode(url, "UTF-8");
+                        page.setProperty( URL, url );
                     } else {
                         continue;
                     }
