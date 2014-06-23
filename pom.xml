@@ -13,6 +13,7 @@
         <neo4jVersion>2.0.3</neo4jVersion>
         <undertowVersion>1.1.0.Beta2</undertowVersion>
         <guavaVersion>17.0</guavaVersion>
+        <joda.version>2.3</joda.version>
         <jacksonVersion>2.4.1</jacksonVersion>
     </properties>
 
@@ -34,6 +35,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guavaVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda.version}</version>
         </dependency>
         <!-- JSON encoding -->
         <dependency>

@@ -6,11 +6,9 @@ import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import pe.archety.handlers.*;
-import pe.archety.handlers.admin.HelloNameHandler;
-import pe.archety.handlers.admin.HelloWorldHandler;
-import pe.archety.handlers.admin.InitializeHandler;
-import pe.archety.handlers.admin.WarmUpHandler;
+import pe.archety.handlers.admin.*;
+import pe.archety.handlers.api.GetIdentityHandler;
+import pe.archety.handlers.api.PostConceptHandler;
 
 public class ArchetypeServer {
 
@@ -40,6 +38,7 @@ public class ArchetypeServer {
                                 .add("GET", "/", new HelloWorldHandler())
                                 .add("GET", "/v1/admin/warmup", new WarmUpHandler(graphDb))
                                 .add("GET", "/v1/admin/initialize", new InitializeHandler(graphDb))
+                                .add("GET", "/v1/admin/wikipedia", new WikipediaHandler(graphDb))
                                 .add("GET", "/v1/hello/{name}", new HelloNameHandler())
                 )
                 .setWorkerThreads(200).build().start();
@@ -50,7 +49,8 @@ public class ArchetypeServer {
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
-                                .add("GET", "/v1/{identity}", new GetIdentityHandler(graphDb))
+                                .add("GET", "/v1/identities/{identity}", new GetIdentityHandler(graphDb))
+                                .add("POST", "/v1/pages/{url}", new PostConceptHandler(graphDb))
                 )
                 .setWorkerThreads(200).build().start();
 

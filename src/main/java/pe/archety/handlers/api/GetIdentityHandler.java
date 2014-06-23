@@ -1,4 +1,4 @@
-package pe.archety.handlers;
+package pe.archety.handlers.api;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;

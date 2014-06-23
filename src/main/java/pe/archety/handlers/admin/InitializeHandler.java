@@ -8,6 +8,8 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import pe.archety.Labels;
 
+import java.util.concurrent.TimeUnit;
+
 import static pe.archety.ArchetypeServer.TEXT_PLAIN;
 
 public class InitializeHandler implements HttpHandler {
@@ -25,10 +27,18 @@ public class InitializeHandler implements HttpHandler {
             schema.constraintFor( Labels.Identity )
                     .assertPropertyIsUnique("identity")
                     .create();
-            schema.constraintFor( Labels.Concept )
+            schema.constraintFor( Labels.Page )
                     .assertPropertyIsUnique("url")
                     .create();
             tx.success();
+
+            db.index().getNodeAutoIndexer().setEnabled(true);
+            db.index().getNodeAutoIndexer().startAutoIndexingProperty("title");
+        }
+
+        try ( Transaction tx = db.beginTx()) {
+            Schema schema = db.schema();
+            schema.awaitIndexesOnline(1, TimeUnit.DAYS);
         }
 
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, TEXT_PLAIN);
