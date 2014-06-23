@@ -36,10 +36,10 @@ public class WikipediaHandler implements HttpHandler {
             for ( Node page : GlobalGraphOperations.at(db).getAllNodesWithLabel( Labels.Page )) {
                     if (!( page.hasProperty( URL ) ) ) {
                         i++;
-                        String url = prefix + page.getProperty( TITLE );
+                        String url = (String)page.getProperty( TITLE );
                         url = url.replace(" ", "_");
                         url = URLEncoder.encode(url, "UTF-8");
-                        page.setProperty( URL, url );
+                        page.setProperty( URL, prefix + url );
                     } else {
                         continue;
                     }

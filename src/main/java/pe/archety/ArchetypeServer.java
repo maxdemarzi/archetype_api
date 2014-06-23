@@ -49,8 +49,8 @@ public class ArchetypeServer {
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
-                                .add("GET", "/v1/identities/{identity}", new GetIdentityHandler(graphDb))
-                                .add("POST", "/v1/pages/{url}", new PostConceptHandler(graphDb))
+                                .add("GET",  "/v1/identities/{identity}", new GetIdentityHandler(graphDb))
+                                .add("POST", "/v1/pages", new PostConceptHandler(graphDb))
                 )
                 .setWorkerThreads(200).build().start();
 

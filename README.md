@@ -12,11 +12,19 @@ Edit the ArchetypeServer.java file to point to your graph.db directory:
 
 Compile it and run it:
 
-    mvn clean compile assembly:single
+    mvn clean package
     java -jar target/ArchetypeServer-jar-with-dependencies.jar
 
-Go to http://localhost:8080 and you should get a "Hello World".
+Go to http://localhost:8079 for administrative interface:
 
-    /admin/warmup
+    GET     /                                 # Hello World
+    GET     /v1/hello/{name}                  # Example Parameters
+    GET     /v1/admin/warmup                  # Warm up database
+    GET     /v1/admin/wikipedia               # Add url property to Pages
+    GET     /v1/admin/initialize              # Create Indexes
     
-    /identities/{email}
+    
+Go to http://localhost:8080 for API:    
+    
+    GET     /v1/identities/{identity}         # Get profile of identity
+    POST    /v1/pages
