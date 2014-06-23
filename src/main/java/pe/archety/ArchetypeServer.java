@@ -31,7 +31,7 @@ public class ArchetypeServer {
 
         // Administrative server accessible internally only
         Undertow.builder()
-                .addHttpListener(8079, "localhost")
+                .addHttpListener(8079, "archety.pe")
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
@@ -45,7 +45,7 @@ public class ArchetypeServer {
 
         // Public API
         Undertow.builder()
-                .addHttpListener(8080, "localhost")
+                .addHttpListener(8080, "archety.pe")
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()

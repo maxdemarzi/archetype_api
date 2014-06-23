@@ -34,7 +34,8 @@ public class WikipediaHandler implements HttpHandler {
             for ( Node page : GlobalGraphOperations.at(db).getAllNodesWithLabel( Labels.Page )) {
                     if (!( page.hasProperty( URL ) ) ) {
                         i++;
-                        page.setProperty( URL, prefix + page.getProperty( TITLE ) );
+                        String url = prefix + page.getProperty( TITLE );
+                        page.setProperty( URL, url.replace(" ", "_") );
                     } else {
                         continue;
                     }

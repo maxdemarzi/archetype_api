@@ -8,6 +8,14 @@
     <artifactId>archetype_api</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <!-- Use https, otherwise getting 301 redirect issues -->
+    <repositories>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+    </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <neo4jVersion>2.0.3</neo4jVersion>
