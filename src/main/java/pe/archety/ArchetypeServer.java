@@ -17,8 +17,8 @@ public class ArchetypeServer {
     public static final String HTML_UTF8 = MediaType.HTML_UTF_8.toString();
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String STOREDIR = "/Users/maxdemarzi/Projects/archetype_api/neo4j/data/graph.db";
-    private static final String CONFIG = "/Users/maxdemarzi/Projects/archetype_api/neo4j/conf/neo4j.properties";
+    private static final String STOREDIR = "/home/shroot/graphipedia/neo4j/data/graph.db";
+    private static final String CONFIG = "/home/shroot/graphipedia/neo4j/conf/neo4j.properties";
 
     static GraphDatabaseService graphDb = new GraphDatabaseFactory()
             .newEmbeddedDatabaseBuilder( STOREDIR )
