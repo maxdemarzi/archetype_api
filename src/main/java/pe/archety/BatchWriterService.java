@@ -15,6 +15,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static pe.archety.ArchetypeConstants.DATA;
+import static pe.archety.ArchetypeConstants.ACTION;
+
 public class BatchWriterService extends AbstractScheduledService {
 
     private static final Logger logger = Logger.getLogger(BatchWriterService.class.getName());
@@ -56,13 +59,22 @@ public class BatchWriterService extends AbstractScheduledService {
                 for( HashMap write : writes){
                     try {
                         i++;
-                        switch ((BatchWriterServiceAction) write.get(ArchetypeConstants.ACTION)) {
+                        switch ((BatchWriterServiceAction) write.get(ACTION)) {
                             case CREATE_IDENTITY:
+                                if (write.get(DATA) != null &&
+                                        ((HashMap)write.get(DATA)).containsKey("identityHash")  ) {
+                                    String identityHash = (String)((HashMap)write.get(DATA)).get("identityHash");
+                                    UniqueFactory.UniqueNodeFactory identityFactory = getUniqueIdentityFactory(graphDb);
+                                    identityFactory.getOrCreate( "identity", identityHash );
+                                }
                                 break;
+
                             case CREATE_PAGE:
                                 break;
+
                             case CREATE_BOTH:
                                 break;
+
                             case CREATE_RELATIONSHIP:
                                 break;
                         }

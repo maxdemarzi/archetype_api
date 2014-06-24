@@ -100,7 +100,7 @@ public class CreateIdentityHandler implements HttpHandler {
                     if ( !results.hasNext() ) {
                         HashMap<String, Object> write = new HashMap<>();
                         HashMap<String, Object> data = new HashMap<>();
-                        data.put( "identity", identityHash );
+                        data.put( "identityHash", identityHash );
                         write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_IDENTITY );
                         write.put( ArchetypeConstants.DATA, data );
                         batchWriterService.queue.put( write );
