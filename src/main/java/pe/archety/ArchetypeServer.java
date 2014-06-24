@@ -7,7 +7,7 @@ import com.google.common.net.MediaType;
 import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import pe.archety.handlers.admin.*;
 import pe.archety.handlers.api.CreatePageHandler;
 import pe.archety.handlers.api.CreateIdentityHandler;
@@ -22,15 +22,19 @@ public class ArchetypeServer {
     private static final String STOREDIR = "/home/shroot/graphipedia/neo4j/data/graph.db";
     private static final String CONFIG = "/home/shroot/graphipedia/neo4j/conf/neo4j.properties";
 
-    private static final GraphDatabaseService graphDb = new GraphDatabaseFactory()
+    private static final GraphDatabaseService graphDb = new HighlyAvailableGraphDatabaseFactory()
             .newEmbeddedDatabaseBuilder( STOREDIR )
             .loadPropertiesFromFile( CONFIG )
             .newGraphDatabase();
+
+    private static final BatchWriterService batchWriterService = BatchWriterService.INSTANCE;
 
     public static final Cache<String, Long> identityCache = CacheBuilder.newBuilder().maximumSize(10_000_000).build();
 
     public static void main(final String[] args) {
         registerShutdownHook(graphDb);
+
+        batchWriterService.SetGraphDatabase(graphDb);
 
         // Administrative server accessible internally only
         Undertow.builder()
