@@ -27,4 +27,5 @@ Go to http://localhost:8079 for administrative interface:
 Go to http://localhost:8080 for API:    
     
     GET     /v1/identities/{identity}         # Get profile of identity
+    POST    /v1/identities
     POST    /v1/pages

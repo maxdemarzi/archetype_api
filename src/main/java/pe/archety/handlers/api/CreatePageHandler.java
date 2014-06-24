@@ -6,11 +6,11 @@ import io.undertow.util.Headers;
 import org.neo4j.graphdb.GraphDatabaseService;
 import pe.archety.ArchetypeServer;
 
-public class PostConceptHandler implements HttpHandler {
+public class CreatePageHandler implements HttpHandler {
 
     private static GraphDatabaseService graphDB;
 
-    public PostConceptHandler( GraphDatabaseService graphDB ) {
+    public CreatePageHandler(GraphDatabaseService graphDB) {
         this.graphDB = graphDB;
     }
 

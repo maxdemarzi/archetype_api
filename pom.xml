@@ -23,6 +23,9 @@
         <guavaVersion>17.0</guavaVersion>
         <joda.version>2.3</joda.version>
         <jacksonVersion>2.4.1</jacksonVersion>
+        <validatorVersion>1.4.0</validatorVersion>
+        <libphonenumberVersion>6.1</libphonenumberVersion>
+        <bouncycastleVersion>1.50</bouncycastleVersion>
     </properties>
 
     <dependencies>
@@ -48,6 +51,21 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>${validatorVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>${libphonenumberVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>${bouncycastleVersion}</version>
         </dependency>
         <!-- JSON encoding -->
         <dependency>

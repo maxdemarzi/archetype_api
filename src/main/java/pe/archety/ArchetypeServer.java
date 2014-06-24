@@ -1,30 +1,33 @@
 package pe.archety;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.net.MediaType;
 import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import pe.archety.handlers.admin.*;
+import pe.archety.handlers.api.CreatePageHandler;
+import pe.archety.handlers.api.CreateIdentityHandler;
 import pe.archety.handlers.api.GetIdentityHandler;
-import pe.archety.handlers.api.PostConceptHandler;
 
 public class ArchetypeServer {
 
     public static final String JSON_UTF8 = MediaType.JSON_UTF_8.toString();
     public static final String TEXT_PLAIN = MediaType.PLAIN_TEXT_UTF_8.toString();
-    public static final String HTML_UTF8 = MediaType.HTML_UTF_8.toString();
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String STOREDIR = "/home/shroot/graphipedia/neo4j/data/graph.db";
     private static final String CONFIG = "/home/shroot/graphipedia/neo4j/conf/neo4j.properties";
 
-    static GraphDatabaseService graphDb = new GraphDatabaseFactory()
+    private static final GraphDatabaseService graphDb = new GraphDatabaseFactory()
             .newEmbeddedDatabaseBuilder( STOREDIR )
             .loadPropertiesFromFile( CONFIG )
             .newGraphDatabase();
 
+    public static final Cache<String, Long> identityCache = CacheBuilder.newBuilder().maximumSize(10_000_000).build();
 
     public static void main(final String[] args) {
         registerShutdownHook(graphDb);
@@ -50,7 +53,8 @@ public class ArchetypeServer {
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
                                 .add("GET",  "/v1/identities/{identity}", new GetIdentityHandler(graphDb))
-                                .add("POST", "/v1/pages", new PostConceptHandler(graphDb))
+                                .add("POST", "/v1/identities", new CreateIdentityHandler(graphDb, objectMapper))
+                                .add("POST", "/v1/pages", new CreatePageHandler(graphDb))
                 )
                 .setWorkerThreads(200).build().start();
 
