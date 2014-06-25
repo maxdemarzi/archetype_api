@@ -65,7 +65,8 @@ public class BatchWriterService extends AbstractScheduledService {
                                         ((HashMap)write.get(DATA)).containsKey("identityHash")  ) {
                                     String identityHash = (String)((HashMap)write.get(DATA)).get("identityHash");
                                     UniqueFactory.UniqueNodeFactory identityFactory = getUniqueIdentityFactory(graphDb);
-                                    identityFactory.getOrCreate( "identity", identityHash );
+                                    Node identityNode = identityFactory.getOrCreate( "identity", identityHash );
+                                    ArchetypeServer.identityCache.put(identityHash, identityNode.getId());
                                 }
                                 break;
 
