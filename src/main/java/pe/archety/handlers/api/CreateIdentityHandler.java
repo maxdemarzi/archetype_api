@@ -90,21 +90,23 @@ public class CreateIdentityHandler implements HttpHandler {
             identityHash = calculateHash(identity);
             Long identityNodeId = ArchetypeServer.identityCache.getIfPresent(identityHash);
 
-            if( identityNodeId == null ) {
-                try ( Transaction tx = graphDB.beginTx() ) {
+            if( identityNodeId == null ) try (Transaction tx = graphDB.beginTx()) {
 
-                    // If the node id is not in the cache, let's try to find the node in the index.
-                    ResourceIterator<Node> results = graphDB.findNodesByLabelAndProperty( Labels.Identity, "identity", identityHash ).iterator();
+                // If the node id is not in the cache, let's try to find the node in the index.
+                ResourceIterator<Node> results = graphDB.findNodesByLabelAndProperty(Labels.Identity, "identity", identityHash).iterator();
 
+                // If it's in the index, cache it
+                if (results.hasNext()) {
+                    Node identityNode = results.next();
+                    ArchetypeServer.identityCache.put(identityHash, identityNode.getId());
+                } else {
                     // If it's not in the index go create it asynchronously
-                    if ( !results.hasNext() ) {
-                        HashMap<String, Object> write = new HashMap<>();
-                        HashMap<String, Object> data = new HashMap<>();
-                        data.put( "identityHash", identityHash );
-                        write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_IDENTITY );
-                        write.put( ArchetypeConstants.DATA, data );
-                        batchWriterService.queue.put( write );
-                    }
+                    HashMap<String, Object> write = new HashMap<>();
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("identityHash", identityHash);
+                    write.put(ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_IDENTITY);
+                    write.put(ArchetypeConstants.DATA, data);
+                    batchWriterService.queue.put(write);
                 }
             }
         }
