@@ -35,7 +35,7 @@ public class CreateIdentityHandler implements HttpHandler {
     private static final PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
     private static final BatchWriterService batchWriterService = BatchWriterService.INSTANCE;
 
-    public CreateIdentityHandler( GraphDatabaseService graphDB, ObjectMapper objectMapper) {
+    public CreateIdentityHandler( GraphDatabaseService graphDB, ObjectMapper objectMapper ) {
         this.graphDB = graphDB;
         this.objectMapper = objectMapper;
     }
@@ -87,7 +87,7 @@ public class CreateIdentityHandler implements HttpHandler {
 
         String identityHash = "";
         if( validIdentity ) {
-            identityHash = calculateHash(identity);
+            identityHash = ArchetypeConstants.calculateHash(identity);
             Long identityNodeId = ArchetypeServer.identityCache.getIfPresent(identityHash);
 
             if( identityNodeId == null ) try (Transaction tx = graphDB.beginTx()) {
@@ -115,15 +115,6 @@ public class CreateIdentityHandler implements HttpHandler {
         exchange.getResponseSender().send(ByteBuffer.wrap(
                 objectMapper.writeValueAsBytes(
                         Collections.singletonMap("identity", identity))));
-    }
-
-    private static String calculateHash(String input) {
-        SHA3Digest digest = new SHA3Digest(512);
-        byte[] inputAsBytes = input.getBytes(Charsets.UTF_8);
-        byte[] retValue = new byte[digest.getDigestSize()];
-        digest.update(inputAsBytes, 0, inputAsBytes.length);
-        digest.doFinal(retValue, 0);
-        return Base64.toBase64String(retValue);
     }
 
 }
