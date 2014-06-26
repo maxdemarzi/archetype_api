@@ -89,7 +89,7 @@
             <artifactId>jackson-core</artifactId>
             <version>${jacksonVersion}</version>
         </dependency>
-        <!-- Logging -->
+        <!-- Logging
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -100,6 +100,7 @@
             <artifactId>log4j-core</artifactId>
             <version>${loggingVersion}</version>
         </dependency>
+        -->
     </dependencies>
 
 
