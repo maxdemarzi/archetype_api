@@ -32,29 +32,29 @@ public class GetIdentityHandler implements HttpHandler {
         String identity = exchange.getAttachment( io.undertow.util.PathTemplateMatch.ATTACHMENT_KEY )
                 .getParameters().get( "identity" );
 
-        String identityHash = ArchetypeConstants.calculateHash(identity);
+        String identityHash = ArchetypeConstants.calculateHash( identity );
 
-        Long identityNodeId = ArchetypeServer.identityCache.getIfPresent(identityHash);
+        Long identityNodeId = ArchetypeServer.identityCache.getIfPresent( identityHash );
 
-        if( identityNodeId == null ) try (Transaction tx = graphDB.beginTx()) {
+        if( identityNodeId == null ) try ( Transaction tx = graphDB.beginTx() ) {
 
             // If the node id is not in the cache, let's try to find the node in the index.
-            ResourceIterator<Node> results = graphDB.findNodesByLabelAndProperty(Labels.Identity, "identity", identityHash).iterator();
+            ResourceIterator<Node> results = graphDB.findNodesByLabelAndProperty( Labels.Identity, "identity", identityHash ).iterator();
 
             // If it's in the index, cache it
-            if (results.hasNext()) {
+            if ( results.hasNext() ) {
                 Node identityNode = results.next();
-                ArchetypeServer.identityCache.put(identityHash, identityNode.getId());
+                ArchetypeServer.identityCache.put( identityHash, identityNode.getId() );
             } else {
-                exchange.setResponseCode(404);
+                exchange.setResponseCode( 404 );
                 return;
             }
         }
 
-        exchange.setResponseCode(200);
-        exchange.getResponseSender().send(ByteBuffer.wrap(
+        exchange.setResponseCode( 200 );
+        exchange.getResponseSender().send( ByteBuffer.wrap(
                 objectMapper.writeValueAsBytes(
-                        Collections.singletonMap("identity", identity))));
+                        Collections.singletonMap( "identity", identity ))));
 
     }
 }

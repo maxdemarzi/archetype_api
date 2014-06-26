@@ -8,6 +8,7 @@ import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
+import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 import pe.archety.handlers.admin.*;
 import pe.archety.handlers.api.CreatePageHandler;
 import pe.archety.handlers.api.CreateIdentityHandler;
@@ -35,7 +36,11 @@ public class ArchetypeServer {
         registerShutdownHook(graphDb);
 
         batchWriterService.SetGraphDatabase(graphDb);
+        HighlyAvailableGraphDatabase gdb = (HighlyAvailableGraphDatabase)graphDb;
+        if (gdb.isMaster()){
+            // do stuff
 
+        }
         // Administrative server accessible internally only
         Undertow.builder()
                 .addHttpListener(8079, "archety.pe")
@@ -56,7 +61,7 @@ public class ArchetypeServer {
                 .setBufferSize(1024 * 16)
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
-                                .add("GET",  "/v1/identities/{identity}", new GetIdentityHandler(graphDb))
+                                .add("GET",  "/v1/identities/{identity}", new GetIdentityHandler(graphDb, objectMapper))
                                 .add("POST", "/v1/identities", new CreateIdentityHandler(graphDb, objectMapper))
                                 .add("POST", "/v1/pages", new CreatePageHandler(graphDb))
                 )
