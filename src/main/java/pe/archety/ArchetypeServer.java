@@ -36,11 +36,7 @@ public class ArchetypeServer {
         registerShutdownHook(graphDb);
 
         batchWriterService.SetGraphDatabase(graphDb);
-        HighlyAvailableGraphDatabase gdb = (HighlyAvailableGraphDatabase)graphDb;
-        if (gdb.isMaster()){
-            // do stuff
 
-        }
         // Administrative server accessible internally only
         Undertow.builder()
                 .addHttpListener(8079, "archety.pe")
