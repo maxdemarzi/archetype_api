@@ -8,7 +8,6 @@ import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
-import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 import pe.archety.handlers.admin.*;
 import pe.archety.handlers.api.CreatePageHandler;
 import pe.archety.handlers.api.CreateIdentityHandler;

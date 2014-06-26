@@ -26,6 +26,7 @@
         <validatorVersion>1.4.0</validatorVersion>
         <libphonenumberVersion>6.1</libphonenumberVersion>
         <bouncycastleVersion>1.50</bouncycastleVersion>
+        <loggingVersion>2.0-rc2</loggingVersion>
     </properties>
 
     <dependencies>
@@ -87,6 +88,17 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>${jacksonVersion}</version>
+        </dependency>
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${loggingVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${loggingVersion}</version>
         </dependency>
     </dependencies>
 
