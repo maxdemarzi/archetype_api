@@ -20,13 +20,13 @@ import static pe.archety.ArchetypeConstants.ACTION;
 
 public class BatchWriterService extends AbstractScheduledService {
 
-    private final static Logger logger = Logger.getLogger(BatchWriterService.class);
-    private static final PathExpander LIKES_EXPANDER = PathExpanders.forTypeAndDirection(Relationships.LIKES, Direction.OUTGOING);
-    private static final PathFinder<Path> ONE_HOP_LIKES_PATH = GraphAlgoFactory.shortestPath(LIKES_EXPANDER, 1);
-    private static final PathExpander HATES_EXPANDER = PathExpanders.forTypeAndDirection(Relationships.HATES, Direction.OUTGOING);
-    private static final PathFinder<Path> ONE_HOP_HATES_PATH = GraphAlgoFactory.shortestPath(HATES_EXPANDER, 1);
-    private static final PathExpander KNOWS_EXPANDER = PathExpanders.forTypeAndDirection(Relationships.KNOWS, Direction.OUTGOING);
-    private static final PathFinder<Path> ONE_HOP_KNOWS_PATH = GraphAlgoFactory.shortestPath(KNOWS_EXPANDER, 1);
+    private final static Logger logger = Logger.getLogger( BatchWriterService.class );
+    private static final PathExpander LIKES_EXPANDER = PathExpanders.forTypeAndDirection( Relationships.LIKES, Direction.OUTGOING );
+    private static final PathFinder<Path> ONE_HOP_LIKES_PATH = GraphAlgoFactory.shortestPath( LIKES_EXPANDER, 1 );
+    private static final PathExpander HATES_EXPANDER = PathExpanders.forTypeAndDirection( Relationships.HATES, Direction.OUTGOING );
+    private static final PathFinder<Path> ONE_HOP_HATES_PATH = GraphAlgoFactory.shortestPath( HATES_EXPANDER, 1 );
+    private static final PathExpander KNOWS_EXPANDER = PathExpanders.forTypeAndDirection( Relationships.KNOWS, Direction.OUTGOING );
+    private static final PathFinder<Path> ONE_HOP_KNOWS_PATH = GraphAlgoFactory.shortestPath( KNOWS_EXPANDER, 1 );
 
     private GraphDatabaseService graphDb;
     public LinkedBlockingQueue<HashMap<String, Object>> queue = new LinkedBlockingQueue<>();
@@ -37,11 +37,11 @@ public class BatchWriterService extends AbstractScheduledService {
 
     public final static BatchWriterService INSTANCE = new BatchWriterService();
     private BatchWriterService() {
-        if (!this.isRunning()){
-            logger.info("Starting BatchWriterService");
+        if ( !this.isRunning() ){
+            logger.info( "Starting BatchWriterService" );
             this.startAsync();
             this.awaitRunning();
-            logger.info("Started BatchWriterService");
+            logger.info( "Started BatchWriterService" );
         }
     }
 
@@ -50,27 +50,39 @@ public class BatchWriterService extends AbstractScheduledService {
         long startTime = System.nanoTime();
         long transactionTime = System.nanoTime();
         Collection<HashMap<String, Object>> writes = new ArrayList<>();
-        queue.drainTo(writes);
+        queue.drainTo( writes );
 
         if(!writes.isEmpty()){
             int i = 0;
             Transaction tx = graphDb.beginTx();
             try {
-                for( HashMap write : writes){
+                for( HashMap write : writes ){
                     try {
                         i++;
-                        switch ((BatchWriterServiceAction) write.get(ACTION)) {
+                        switch ((BatchWriterServiceAction) write.get( ACTION )) {
                             case CREATE_IDENTITY:
-                                if (write.get(DATA) != null &&
-                                        ((HashMap)write.get(DATA)).containsKey("identityHash")  ) {
-                                    String identityHash = (String)((HashMap)write.get(DATA)).get("identityHash");
-                                    UniqueFactory.UniqueNodeFactory identityFactory = getUniqueIdentityFactory(graphDb);
+                                if (write.get( DATA ) != null &&
+                                        ((HashMap)write.get( DATA )).containsKey( "identityHash" )  ) {
+                                    String identityHash = (String)((HashMap)write.get( DATA )).get( "identityHash" );
+                                    UniqueFactory.UniqueNodeFactory identityFactory = getUniqueIdentityFactory( graphDb );
                                     Node identityNode = identityFactory.getOrCreate( "identity", identityHash );
                                     ArchetypeServer.identityCache.put(identityHash, identityNode.getId());
                                 }
                                 break;
 
                             case CREATE_PAGE:
+                                if (write.get( DATA ) != null &&
+                                        ((HashMap)write.get( DATA )).containsKey( "url" ) &&
+                                        ((HashMap)write.get( DATA )).containsKey( "title" ) ) {
+                                    String url = (String)((HashMap)write.get( DATA )).get( "url" );
+                                    String title = (String)((HashMap)write.get( DATA )).get( "title" );
+                                    UniqueFactory.UniqueNodeFactory pageFactory = getUniquePageFactory( graphDb );
+                                    Node pageNode = pageFactory.getOrCreate( "url", url );
+                                    if ( !pageNode.hasProperty( "title" ) ){
+                                        pageNode.setProperty( "title", title );
+                                    }
+                                    ArchetypeServer.urlCache.put( url, pageNode.getId() );
+                                }
                                 break;
 
                             case CREATE_BOTH:
@@ -80,15 +92,15 @@ public class BatchWriterService extends AbstractScheduledService {
                                 break;
                         }
 
-                    } catch (Exception exception) {
-                        logger.error("Error in Write: " + write);
+                    } catch ( Exception exception ) {
+                        logger.error( "Error in Write: " + write );
                     }
 
                     if(i % 40000 == 0){
                         tx.success();
                         tx.close();
                         DateTime currently = new DateTime();
-                        System.out.printf("Performed a transaction of 40000 writes in  %d [msec] @ %s \n", (System.nanoTime() - transactionTime) / 1000000, currently.toDateTimeISO());
+                        System.out.printf( "Performed a transaction of 40000 writes in  %d [msec] @ %s \n", ( System.nanoTime() - transactionTime ) / 1000000, currently.toDateTimeISO() );
                         transactionTime = System.nanoTime();
                         tx = graphDb.beginTx();
                     }
