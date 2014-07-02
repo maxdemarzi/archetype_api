@@ -1,8 +1,7 @@
 package pe.archety;
 
 import com.google.common.util.concurrent.AbstractScheduledService;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.index.UniqueFactory;
@@ -21,7 +20,7 @@ import static pe.archety.ArchetypeConstants.ACTION;
 
 public class BatchWriterService extends AbstractScheduledService {
 
-    private static final Logger logger = LogManager.getLogger();
+    private final static Logger logger = Logger.getLogger(BatchWriterService.class);
     private static final PathExpander LIKES_EXPANDER = PathExpanders.forTypeAndDirection(Relationships.LIKES, Direction.OUTGOING);
     private static final PathFinder<Path> ONE_HOP_LIKES_PATH = GraphAlgoFactory.shortestPath(LIKES_EXPANDER, 1);
     private static final PathExpander HATES_EXPANDER = PathExpanders.forTypeAndDirection(Relationships.HATES, Direction.OUTGOING);

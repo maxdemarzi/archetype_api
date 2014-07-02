@@ -26,7 +26,7 @@
         <validatorVersion>1.4.0</validatorVersion>
         <libphonenumberVersion>6.1</libphonenumberVersion>
         <bouncycastleVersion>1.50</bouncycastleVersion>
-        <loggingVersion>2.0-rc2</loggingVersion>
+        <loggingVersion>1.2.17</loggingVersion>
         <httpclientVersion>4.3.4</httpclientVersion>
         <jerseyVersion>2.10</jerseyVersion>
     </properties>
@@ -100,13 +100,8 @@
         </dependency>
         <!-- Logging -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${loggingVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
             <version>${loggingVersion}</version>
         </dependency>
         <!-- HTTP Clients -->
@@ -129,6 +124,9 @@
         <resources>
             <resource>
                 <directory>src/main/java</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
 
