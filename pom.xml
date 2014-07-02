@@ -27,6 +27,8 @@
         <libphonenumberVersion>6.1</libphonenumberVersion>
         <bouncycastleVersion>1.50</bouncycastleVersion>
         <loggingVersion>2.0-rc2</loggingVersion>
+        <httpclientVersion>4.3.4</httpclientVersion>
+        <jerseyVersion>2.10</jerseyVersion>
     </properties>
 
     <dependencies>
@@ -46,6 +48,13 @@
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-ha</artifactId>
             <version>${neo4jVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-kernel</artifactId>
+            <type>test-jar</type>
+            <version>${neo4jVersion}</version>
+            <scope>test</scope>
         </dependency>
         <!-- Misc. utilities) -->
         <dependency>
@@ -99,6 +108,18 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>${loggingVersion}</version>
+        </dependency>
+        <!-- HTTP Clients -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclientVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>${jerseyVersion}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

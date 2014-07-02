@@ -9,10 +9,10 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.tooling.GlobalGraphOperations;
-import pe.archety.Labels;
+import pe.archety.*;
 
 import java.net.URLEncoder;
-
+import static pe.archety.ArchetypeConstants.URLPREFIX;
 import static pe.archety.ArchetypeServer.TEXT_PLAIN;
 
 public class WikipediaHandler implements HttpHandler {
@@ -20,7 +20,6 @@ public class WikipediaHandler implements HttpHandler {
     GraphDatabaseService db;
     private static final String URL = "url";
     private static final String TITLE = "title";
-    private static final String prefix = "http://en.wikipedia.org/wiki/";
 
     public WikipediaHandler(GraphDatabaseService db){
         this.db = db;
@@ -39,7 +38,7 @@ public class WikipediaHandler implements HttpHandler {
                         String url = (String)page.getProperty( TITLE );
                         url = url.replace(" ", "_");
                         url = URLEncoder.encode(url, "UTF-8");
-                        page.setProperty( URL, prefix + url );
+                        page.setProperty( URL, URLPREFIX + url );
                     } else {
                         continue;
                     }

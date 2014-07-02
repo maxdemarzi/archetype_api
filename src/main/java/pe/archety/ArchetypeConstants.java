@@ -13,6 +13,7 @@ import org.bouncycastle.util.encoders.Base64;
 public class ArchetypeConstants {
     public static final String ACTION = "action";
     public static final String DATA = "data";
+    public static final String URLPREFIX = "http://en.wikipedia.org/wiki/";
 
     public static String calculateHash(String input) {
         SHA3Digest digest = new SHA3Digest(512);

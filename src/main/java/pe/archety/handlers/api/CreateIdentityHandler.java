@@ -10,14 +10,10 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.bouncycastle.crypto.digests.SHA3Digest;
-import org.bouncycastle.util.encoders.Base64;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.index.UniqueFactory;
-import org.neo4j.helpers.Strings;
 import pe.archety.*;
 
 
@@ -40,6 +36,14 @@ public class CreateIdentityHandler implements HttpHandler {
         this.objectMapper = objectMapper;
     }
 
+    /*
+        Input:
+        { "email": "me@meh.com" }
+        or
+        { "phone": "3125137509"}
+        { "phone": "3125137509", "region": "US"}
+     */
+
     @Override
     public void handleRequest( final HttpServerExchange exchange ) throws Exception {
         exchange.getResponseHeaders().put( Headers.CONTENT_TYPE, ArchetypeServer.JSON_UTF8 );
@@ -58,7 +62,7 @@ public class CreateIdentityHandler implements HttpHandler {
                 identity = email;
             }
         } else if( input.containsKey( "phone" ) ){
-            Phonenumber.PhoneNumber phoneNumber = new Phonenumber.PhoneNumber();
+            Phonenumber.PhoneNumber phoneNumber;
             try {
                 String phone = (String) input.get("phone");
                 if (input.containsKey("region")) {

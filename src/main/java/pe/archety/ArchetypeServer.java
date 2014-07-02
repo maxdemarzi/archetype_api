@@ -22,16 +22,19 @@ public class ArchetypeServer {
     private static final String STOREDIR = "/home/shroot/graphipedia/neo4j/data/graph.db";
     private static final String CONFIG = "/home/shroot/graphipedia/neo4j/conf/neo4j.properties";
 
-    private static final GraphDatabaseService graphDb = new HighlyAvailableGraphDatabaseFactory()
-            .newEmbeddedDatabaseBuilder( STOREDIR )
-            .loadPropertiesFromFile( CONFIG )
-            .newGraphDatabase();
+    private static GraphDatabaseService graphDb;
 
     private static final BatchWriterService batchWriterService = BatchWriterService.INSTANCE;
 
     public static final Cache<String, Long> identityCache = CacheBuilder.newBuilder().maximumSize(10_000_000).build();
+    public static final Cache<String, Long> urlCache = CacheBuilder.newBuilder().maximumSize(11_000_000).build();
 
     public static void main(final String[] args) {
+        graphDb = new HighlyAvailableGraphDatabaseFactory()
+                .newEmbeddedDatabaseBuilder( STOREDIR )
+                .loadPropertiesFromFile( CONFIG )
+                .newGraphDatabase();
+
         registerShutdownHook(graphDb);
 
         batchWriterService.SetGraphDatabase(graphDb);
@@ -58,7 +61,7 @@ public class ArchetypeServer {
                 .setHandler(new RoutingHandler()
                                 .add("GET",  "/v1/identities/{identity}", new GetIdentityHandler(graphDb, objectMapper))
                                 .add("POST", "/v1/identities", new CreateIdentityHandler(graphDb, objectMapper))
-                                .add("POST", "/v1/pages", new CreatePageHandler(graphDb))
+                                .add("POST", "/v1/pages", new CreatePageHandler(graphDb, objectMapper))
                 )
                 .setWorkerThreads(200).build().start();
 
