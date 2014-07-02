@@ -50,7 +50,15 @@ public class CreateIdentityHandler implements HttpHandler {
         exchange.startBlocking();
         final InputStream inputStream = exchange.getInputStream();
         final String body = new String(ByteStreams.toByteArray(inputStream), Charsets.UTF_8);
-        HashMap input = objectMapper.readValue(body, HashMap.class);
+        HashMap input = new HashMap();
+        try {
+            input = objectMapper.readValue(body, HashMap.class);
+        } catch (Exception e) {
+            String error = "Error parsing JSON.";
+            exchange.setResponseCode(400);
+            exchange.getResponseSender().send("{\"error\":\"" + error + "\"}");
+            return;
+        }
 
         boolean validIdentity = false;
         String identity = "";
@@ -67,14 +75,14 @@ public class CreateIdentityHandler implements HttpHandler {
                 String phone = (String) input.get("phone");
                 if (input.containsKey("region")) {
                     String region = (String) input.get("region");
-
                     phoneNumber = phoneUtil.parse(phone, region);
                 } else {
                     phoneNumber = phoneUtil.parse(phone, "US");
                 }
             } catch (NumberParseException e) {
-                String error = "Error Parsing Phone Number: " + body;
+                String error = "Error Parsing Phone Number.";
                 logger.severe(error);
+                exchange.setResponseCode(400);
                 exchange.getResponseSender().send("{\"error\":\"" + error + "\"}");
                 return;
             }
@@ -83,10 +91,16 @@ public class CreateIdentityHandler implements HttpHandler {
                 validIdentity = true;
                 identity = phoneUtil.format( phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164 ); // "+41446681800"
             } else {
-                String error = "Parameters email or phone required.";
+                String error = "Invalid Phone Number.";
+                exchange.setResponseCode(400);
                 exchange.getResponseSender().send("{\"error\":\"" + error + "\"}");
                 return;
             }
+        } else {
+            String error = "Parameters email or phone required.";
+            exchange.setResponseCode(400);
+            exchange.getResponseSender().send("{\"error\":\"" + error + "\"}");
+            return;
         }
 
         String identityHash = "";
