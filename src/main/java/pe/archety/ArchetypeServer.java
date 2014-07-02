@@ -26,8 +26,8 @@ public class ArchetypeServer {
 
     private static final BatchWriterService batchWriterService = BatchWriterService.INSTANCE;
 
-    public static final Cache<String, Long> identityCache = CacheBuilder.newBuilder().maximumSize(10_000_000).build();
-    public static final Cache<String, Long> urlCache = CacheBuilder.newBuilder().maximumSize(11_000_000).build();
+    public static final Cache<String, Long> identityCache = CacheBuilder.newBuilder().maximumSize( 10_000_000 ).build();
+    public static final Cache<String, Long> urlCache = CacheBuilder.newBuilder().maximumSize( 11_000_000 ).build();
 
     public static void main(final String[] args) {
         graphDb = new HighlyAvailableGraphDatabaseFactory()
@@ -35,35 +35,35 @@ public class ArchetypeServer {
                 .loadPropertiesFromFile( CONFIG )
                 .newGraphDatabase();
 
-        registerShutdownHook(graphDb);
+        registerShutdownHook( graphDb );
 
-        batchWriterService.SetGraphDatabase(graphDb);
+        batchWriterService.SetGraphDatabase( graphDb );
 
         // Administrative server accessible internally only
         Undertow.builder()
-                .addHttpListener(8079, "archety.pe")
-                .setBufferSize(1024 * 16)
-                .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
-                .setHandler(new RoutingHandler()
-                                .add("GET", "/", new HelloWorldHandler())
-                                .add("GET", "/v1/admin/warmup", new WarmUpHandler(graphDb))
-                                .add("GET", "/v1/admin/initialize", new InitializeHandler(graphDb))
-                                .add("GET", "/v1/admin/wikipedia", new WikipediaHandler(graphDb))
-                                .add("GET", "/v1/hello/{name}", new HelloNameHandler())
+                .addHttpListener( 8079, "archety.pe" )
+                .setBufferSize( 1024 * 16 )
+                .setIoThreads( Runtime.getRuntime().availableProcessors() * 2 ) //this seems slightly faster in some configurations
+                .setHandler( new RoutingHandler()
+                                .add( "GET", "/", new HelloWorldHandler() )
+                                .add( "GET", "/v1/admin/warmup", new WarmUpHandler( graphDb ) )
+                                .add( "GET", "/v1/admin/initialize", new InitializeHandler( graphDb ) )
+                                .add( "GET", "/v1/admin/wikipedia", new WikipediaHandler( graphDb ) )
+                                .add( "GET", "/v1/hello/{name}", new HelloNameHandler() )
                 )
-                .setWorkerThreads(200).build().start();
+                .setWorkerThreads( 200 ).build().start();
 
         // Public API
         Undertow.builder()
-                .addHttpListener(8080, "archety.pe")
-                .setBufferSize(1024 * 16)
+                .addHttpListener( 8080, "archety.pe" )
+                .setBufferSize( 1024 * 16 )
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
-                                .add("GET",  "/v1/identities/{identity}", new GetIdentityHandler(graphDb, objectMapper))
-                                .add("POST", "/v1/identities", new CreateIdentityHandler(graphDb, objectMapper))
-                                .add("POST", "/v1/pages", new CreatePageHandler(graphDb, objectMapper))
+                                .add( "GET",  "/v1/identities/{identity}", new GetIdentityHandler( graphDb, objectMapper ) )
+                                .add( "POST", "/v1/identities", new CreateIdentityHandler( graphDb, objectMapper ) )
+                                .add( "POST", "/v1/pages", new CreatePageHandler( graphDb, objectMapper ) )
                 )
-                .setWorkerThreads(200).build().start();
+                .setWorkerThreads( 200 ).build().start();
 
 
     }

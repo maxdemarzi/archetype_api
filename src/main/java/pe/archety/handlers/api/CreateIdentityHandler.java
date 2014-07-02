@@ -40,8 +40,8 @@ public class CreateIdentityHandler implements HttpHandler {
         Input:
         { "email": "me@meh.com" }
         or
-        { "phone": "3125137509"}
-        { "phone": "3125137509", "region": "US"}
+        { "phone": "3125137509" }
+        { "phone": "3125137509", "region": "US" }
      */
 
     @Override

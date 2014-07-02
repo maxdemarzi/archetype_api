@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.HashMap;
 
 import static pe.archety.ArchetypeConstants.URLPREFIX;
@@ -38,6 +37,13 @@ public class CreatePageHandler implements HttpHandler {
         this.objectMapper = objectMapper;
     }
 
+    /*
+       Input:
+       { "url": "http://en.wikipedia.org/wiki/Neo4j" }
+       or
+       { "title": "Neo4j" }
+       { "url": "http://en.wikipedia.org/wiki/Neo4j", "title": "Neo4j" }
+    */
     @Override
     public void handleRequest( final HttpServerExchange exchange ) throws Exception {
         exchange.getResponseHeaders().put( Headers.CONTENT_TYPE, ArchetypeServer.JSON_UTF8 );
@@ -46,22 +52,21 @@ public class CreatePageHandler implements HttpHandler {
         final String body = new String(ByteStreams.toByteArray(inputStream), Charsets.UTF_8);
         HashMap input = objectMapper.readValue(body, HashMap.class);
 
-        boolean validPage = false;
-
         String url = "";
         String title = "";
         if( input.containsKey( "url" ) ) {
             url = (String) input.get( "url" );
             if ( !url.startsWith( URLPREFIX ) ) {
                 String error = "URL must start with " +  URLPREFIX;
+                exchange.setResponseCode(400);
                 exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
                 return;
             }
         } else if ( input.containsKey( "title" ) ) {
             title = (String) input.get( "title" );
-            title = title.replace( " ", "_" );
-            title = URLEncoder.encode( title, "UTF-8" );
-            url = URLPREFIX + title;
+            url = title.replace( " ", "_" );
+            url = URLEncoder.encode( url, "UTF-8" );
+            url = URLPREFIX + url;
         }
 
         Long pageNodeId = ArchetypeServer.urlCache.getIfPresent(url);
@@ -98,15 +103,19 @@ public class CreatePageHandler implements HttpHandler {
                     batchWriterService.queue.put(write);
                 } else {
                     String error = url + " not found. HTTP Code: " + code;
+                    exchange.setResponseCode(400);
                     exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
                     return;
                 }
             }
         }
+        HashMap<String, String> response = new HashMap<>();
+        response.put("url", url);
+        response.put("title", title);
         exchange.setResponseCode(201);
         exchange.getResponseSender().send(ByteBuffer.wrap(
                 objectMapper.writeValueAsBytes(
-                        Collections.singletonMap("url", url))));
+                        response)));
 
     }
 }

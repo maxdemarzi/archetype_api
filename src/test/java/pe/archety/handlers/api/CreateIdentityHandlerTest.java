@@ -1,8 +1,6 @@
 package pe.archety.handlers.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.net.MediaType;
 import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
 import org.junit.After;
