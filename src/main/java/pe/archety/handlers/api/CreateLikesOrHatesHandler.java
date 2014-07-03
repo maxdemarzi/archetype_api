@@ -13,10 +13,7 @@ import io.undertow.util.PathTemplateMatch;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpHead;
 import org.neo4j.graphdb.*;
-import pe.archety.ArchetypeConstants;
-import pe.archety.ArchetypeServer;
-import pe.archety.BatchWriterServiceAction;
-import pe.archety.Labels;
+import pe.archety.*;
 
 import java.io.InputStream;
 import java.net.URLDecoder;
@@ -175,22 +172,36 @@ public class CreateLikesOrHatesHandler implements HttpHandler {
         }
 
         if( !createPage && createIdentity ){
-            write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_IDENTITY_AND_RELATIONSHIP );
+            if ( relationshipTypeName.equals(Relationships.LIKES.name())){
+                write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_IDENTITY_AND_LIKES_RELATIONSHIP );
+            } else {
+                write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_IDENTITY_AND_HATES_RELATIONSHIP );
+            }
         }
 
         if( createPage && !createIdentity ){
-            write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_PAGE_AND_RELATIONSHIP );
+            if ( relationshipTypeName.equals(Relationships.LIKES.name())){
+                write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_PAGE_AND_LIKES_RELATIONSHIP );
+            } else {
+                write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_PAGE_AND_HATES_RELATIONSHIP );
+            }
         }
 
         if( createPage && createIdentity ){
-            write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_BOTH );
+            if ( relationshipTypeName.equals(Relationships.LIKES.name())){
+                write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_BOTH_AND_LIKES_RELATIONSHIP );
+            } else {
+                write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_BOTH_AND_HATES_RELATIONSHIP );
+            }
         }
 
         if( !createPage && !createIdentity ){
-            write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_RELATIONSHIP );
+            if ( relationshipTypeName.equals(Relationships.LIKES.name())){
+                write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_LIKES_RELATIONSHIP );
+            } else {
+                write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_HATES_RELATIONSHIP );
+            }
         }
-
-        data.put( "relationshipTypeName", relationshipTypeName );
 
         write.put( ArchetypeConstants.DATA, data );
         BATCH_WRITER_SERVICE.queue.put( write );
