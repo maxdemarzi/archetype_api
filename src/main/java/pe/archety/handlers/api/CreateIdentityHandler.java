@@ -9,7 +9,6 @@ import com.google.i18n.phonenumbers.Phonenumber;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
-import org.apache.commons.validator.routines.EmailValidator;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
@@ -23,13 +22,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import static pe.archety.ArchetypeConstants.EMAIL_VALIDATOR;
+import static pe.archety.ArchetypeConstants.PHONE_UTIL;
+import static pe.archety.ArchetypeConstants.BATCH_WRITER_SERVICE;
+
 public class CreateIdentityHandler implements HttpHandler {
     private static final Logger logger = Logger.getLogger(CreateIdentityHandler.class.getName());
     private static GraphDatabaseService graphDB;
     private static ObjectMapper objectMapper;
-    private static final EmailValidator validator = EmailValidator.getInstance();
-    private static final PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-    private static final BatchWriterService batchWriterService = BatchWriterService.INSTANCE;
 
     public CreateIdentityHandler( GraphDatabaseService graphDB, ObjectMapper objectMapper ) {
         this.graphDB = graphDB;
@@ -49,14 +49,14 @@ public class CreateIdentityHandler implements HttpHandler {
         exchange.getResponseHeaders().put( Headers.CONTENT_TYPE, ArchetypeServer.JSON_UTF8 );
         exchange.startBlocking();
         final InputStream inputStream = exchange.getInputStream();
-        final String body = new String(ByteStreams.toByteArray(inputStream), Charsets.UTF_8);
+        final String body = new String( ByteStreams.toByteArray( inputStream ), Charsets.UTF_8 );
         HashMap input = new HashMap();
         try {
             input = objectMapper.readValue(body, HashMap.class);
         } catch (Exception e) {
             String error = "Error parsing JSON.";
-            exchange.setResponseCode(400);
-            exchange.getResponseSender().send("{\"error\":\"" + error + "\"}");
+            exchange.setResponseCode( 400 );
+            exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
             return;
         }
 
@@ -65,53 +65,53 @@ public class CreateIdentityHandler implements HttpHandler {
 
         if( input.containsKey( "email" ) ){
             String email = (String)input.get( "email" );
-            if( validator.isValid( email ) ){
+            if( EMAIL_VALIDATOR.isValid( email ) ){
                 validIdentity = true;
                 identity = email;
             }
         } else if( input.containsKey( "phone" ) ){
             Phonenumber.PhoneNumber phoneNumber;
             try {
-                String phone = (String) input.get("phone");
-                if (input.containsKey("region")) {
+                String phone = (String) input.get( "phone" );
+                if (input.containsKey( "region" )) {
                     String region = (String) input.get("region");
-                    phoneNumber = phoneUtil.parse(phone, region);
+                    phoneNumber = PHONE_UTIL.parse( phone, region );
                 } else {
-                    phoneNumber = phoneUtil.parse(phone, "US");
+                    phoneNumber = PHONE_UTIL.parse( phone, "US" );
                 }
             } catch (NumberParseException e) {
                 String error = "Error Parsing Phone Number.";
-                logger.severe(error);
-                exchange.setResponseCode(400);
-                exchange.getResponseSender().send("{\"error\":\"" + error + "\"}");
+                logger.severe( error );
+                exchange.setResponseCode( 400 );
+                exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
                 return;
             }
 
-            if( phoneUtil.isValidNumber( phoneNumber ) ) {
+            if( PHONE_UTIL.isValidNumber( phoneNumber ) ) {
                 validIdentity = true;
-                identity = phoneUtil.format( phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164 ); // "+41446681800"
+                identity = PHONE_UTIL.format( phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164 ); // "+41446681800"
             } else {
                 String error = "Invalid Phone Number.";
-                exchange.setResponseCode(400);
-                exchange.getResponseSender().send("{\"error\":\"" + error + "\"}");
+                exchange.setResponseCode( 400 );
+                exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
                 return;
             }
         } else {
             String error = "Parameters email or phone required.";
-            exchange.setResponseCode(400);
-            exchange.getResponseSender().send("{\"error\":\"" + error + "\"}");
+            exchange.setResponseCode( 400 );
+            exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
             return;
         }
 
         String identityHash = "";
         if( validIdentity ) {
             identityHash = ArchetypeConstants.calculateHash(identity);
-            Long identityNodeId = ArchetypeServer.identityCache.getIfPresent(identityHash);
+            Long identityNodeId = ArchetypeServer.identityCache.getIfPresent( identityHash );
 
             if( identityNodeId == null ) try (Transaction tx = graphDB.beginTx()) {
 
                 // If the node id is not in the cache, let's try to find the node in the index.
-                ResourceIterator<Node> results = graphDB.findNodesByLabelAndProperty(Labels.Identity, "identity", identityHash).iterator();
+                ResourceIterator<Node> results = graphDB.findNodesByLabelAndProperty( Labels.Identity, "identity", identityHash ).iterator();
 
                 // If it's in the index, cache it
                 if (results.hasNext()) {
@@ -121,18 +121,18 @@ public class CreateIdentityHandler implements HttpHandler {
                     // If it's not in the index go create it asynchronously
                     HashMap<String, Object> write = new HashMap<>();
                     HashMap<String, Object> data = new HashMap<>();
-                    data.put("identityHash", identityHash);
-                    write.put(ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_IDENTITY);
-                    write.put(ArchetypeConstants.DATA, data);
-                    batchWriterService.queue.put(write);
+                    data.put( "identityHash", identityHash );
+                    write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_IDENTITY );
+                    write.put( ArchetypeConstants.DATA, data );
+                    BATCH_WRITER_SERVICE.queue.put( write );
                 }
             }
         }
 
-        exchange.setResponseCode(201);
-        exchange.getResponseSender().send(ByteBuffer.wrap(
+        exchange.setResponseCode( 201 );
+        exchange.getResponseSender().send( ByteBuffer.wrap(
                 objectMapper.writeValueAsBytes(
-                        Collections.singletonMap("identity", identity))));
+                        Collections.singletonMap( "identity", identity ))));
     }
 
 }

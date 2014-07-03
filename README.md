@@ -26,6 +26,14 @@ Go to http://localhost:8079 for administrative interface:
     
 Go to http://localhost:8080 for API:    
     
-    GET     /v1/identities/{identity}         # Get profile of identity
-    POST    /v1/identities                    # Create identity (takes email/phone+region(opt) as parameters)
-    POST    /v1/pages
+    GET     /v1/identities/{identity}                   # Get profile of identity
+    POST    /v1/identities                              # Create identity (takes email/phone+region(opt) as parameters)
+    POST    /v1/identities/{identity}/likes             # Create a likes relationship between identity and page (param)
+    GET     /v1/identities/{identity}/likes             # Get likes for identity
+    POST    /v1/identities/{identity}/hates             # Create a hates relationship between identity and page (param)
+    GET     /v1/identities/{identity}/hates             # Get hates for identity
+    POST    /v1/identities/{identity}/knows             # Create a knows relationship between two identities (param)
+    GET     /v1/identities/{identity}/knows             # Get knows for identity
+
+    POST    /v1/pages                                   # Create page (takes title or url) as parameter
+
