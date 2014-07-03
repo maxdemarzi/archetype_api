@@ -62,9 +62,9 @@ public class ArchetypeServer {
                 .setHandler(new RoutingHandler()
                                 .add( "GET",  "/v1/identities/{identity}", new GetIdentityHandler( graphDb, objectMapper ) )
                                 .add( "POST", "/v1/identities", new CreateIdentityHandler( graphDb, objectMapper ) )
-                                .add( "POST", "/v1/identities/{identity}/likes/{page}", new CreateLikesOrHatesHandler( graphDb, objectMapper, Relationships.LIKES.name() ) )
-                                .add( "POST", "/v1/identities/{identity}/hates/{page}", new CreateLikesOrHatesHandler( graphDb, objectMapper, Relationships.HATES.name() ) )
-                                .add( "POST", "/v1/pages", new CreatePageHandler(graphDb, objectMapper))
+                                .add( "POST", "/v1/identities/{identity}/likes", new CreateLikesOrHatesHandler( graphDb, objectMapper, Relationships.LIKES.name() ) )
+                                .add( "POST", "/v1/identities/{identity}/hates", new CreateLikesOrHatesHandler( graphDb, objectMapper, Relationships.HATES.name() ) )
+                                .add( "POST", "/v1/pages", new CreatePageHandler( graphDb, objectMapper ) )
                 )
                 .setWorkerThreads(200).build().start();
 

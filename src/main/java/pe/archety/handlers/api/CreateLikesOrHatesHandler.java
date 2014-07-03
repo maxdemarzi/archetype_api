@@ -36,7 +36,7 @@ public class CreateLikesOrHatesHandler implements HttpHandler {
     private static final Logger logger = Logger.getLogger(CreateLikesOrHatesHandler.class.getName());
     private static GraphDatabaseService graphDB;
     private static ObjectMapper objectMapper;
-    private static String relationshipTypeName;
+    private String relationshipTypeName;
 
     public CreateLikesOrHatesHandler(GraphDatabaseService graphDB, ObjectMapper objectMapper, String relationshipTypeName) {
         this.graphDB = graphDB;
