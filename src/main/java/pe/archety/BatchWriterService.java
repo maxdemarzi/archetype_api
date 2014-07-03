@@ -94,6 +94,32 @@ public class BatchWriterService extends AbstractScheduledService {
                                 break;
                             }
 
+                            case CREATE_BOTH_AND_LIKES_RELATIONSHIP: {
+                                Node identityNode = createIdentity(write);
+                                Node pageNode = createPage(write);
+                                CreateLikesRelationship(identityNode, pageNode);
+                                break;
+                            }
+                            case CREATE_BOTH_AND_HATES_RELATIONSHIP: {
+                                Node identityNode = createIdentity(write);
+                                Node pageNode = createPage(write);
+                                CreateHatesRelationship(identityNode, pageNode);
+                                break;
+                            }
+
+                            case CREATE_LIKES_RELATIONSHIP: {
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
+                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("pageNodeId"));
+                                CreateLikesRelationship(identityNode, pageNode);
+                                break;
+                            }
+                            case CREATE_HATES_RELATIONSHIP: {
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
+                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("pageNodeId"));
+                                CreateHatesRelationship(identityNode, pageNode);
+                                break;
+                            }
+
                         }
 
                     } catch ( Exception exception ) {
