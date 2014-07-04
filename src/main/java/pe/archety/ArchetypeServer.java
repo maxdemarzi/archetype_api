@@ -9,10 +9,7 @@ import io.undertow.server.RoutingHandler;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import pe.archety.handlers.admin.*;
-import pe.archety.handlers.api.CreateLikesOrHatesHandler;
-import pe.archety.handlers.api.CreatePageHandler;
-import pe.archety.handlers.api.CreateIdentityHandler;
-import pe.archety.handlers.api.GetIdentityHandler;
+import pe.archety.handlers.api.*;
 
 public class ArchetypeServer {
 
@@ -61,10 +58,11 @@ public class ArchetypeServer {
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
                                 .add( "GET",  "/v1/identities/{identity}", new GetIdentityHandler( graphDb, objectMapper ) )
-                                .add( "POST", "/v1/identities", new CreateIdentityHandler( graphDb, objectMapper ) )
-                                .add( "POST", "/v1/identities/{identity}/likes", new CreateLikesOrHatesHandler( graphDb, objectMapper, Relationships.LIKES.name() ) )
+                                .add( "POST", "/v1/identities", new CreateIdentityHandler(graphDb, objectMapper))
+                                .add( "POST", "/v1/identities/{identity}/likes", new CreateLikesOrHatesHandler(graphDb, objectMapper, Relationships.LIKES.name()))
                                 .add( "POST", "/v1/identities/{identity}/hates", new CreateLikesOrHatesHandler( graphDb, objectMapper, Relationships.HATES.name() ) )
-                                .add( "POST", "/v1/pages", new CreatePageHandler( graphDb, objectMapper ) )
+                                .add( "POST", "/v1/identities/{identity}/knows", new CreateKnowsHandler( graphDb, objectMapper ) )
+                                .add( "POST", "/v1/pages", new CreatePageHandler(graphDb, objectMapper))
                 )
                 .setWorkerThreads(200).build().start();
 

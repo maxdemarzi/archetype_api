@@ -59,20 +59,24 @@ public class BatchWriterService extends AbstractScheduledService {
                 for( HashMap write : writes ){
                     try {
                         i++;
+                        if ( write.get( DATA ) == null) {
+                            logger.error( "BatchWriterService received write without data:" + write.toString() );
+                            continue;
+                        }
                         switch ((BatchWriterServiceAction) write.get( ACTION )) {
                             case CREATE_IDENTITY: {
-                                createIdentity(write);
+                                createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
                                 break;
                             }
                             case CREATE_IDENTITY_AND_LIKES_RELATIONSHIP: {
-                                Node identityNode = createIdentity(write);
-                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("pageNodeId"));
+                                Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
+                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "pageNodeId" ));
                                 CreateLikesRelationship(identityNode, pageNode);
                                 break;
                             }
                             case CREATE_IDENTITY_AND_HATES_RELATIONSHIP: {
-                                Node identityNode = createIdentity(write);
-                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("pageNodeId"));
+                                Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
+                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "pageNodeId" ));
                                 CreateHatesRelationship(identityNode, pageNode);
                                 break;
                             }
@@ -82,41 +86,66 @@ public class BatchWriterService extends AbstractScheduledService {
                                 break;
                             }
                             case CREATE_PAGE_AND_LIKES_RELATIONSHIP: {
-                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "identityNodeId" ));
                                 Node pageNode = createPage(write);
                                 CreateLikesRelationship(identityNode, pageNode);
                                 break;
                             }
                             case CREATE_PAGE_AND_HATES_RELATIONSHIP: {
-                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "identityNodeId" ));
                                 Node pageNode = createPage(write);
                                 CreateHatesRelationship(identityNode, pageNode);
                                 break;
                             }
 
                             case CREATE_BOTH_AND_LIKES_RELATIONSHIP: {
-                                Node identityNode = createIdentity(write);
+                                Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
                                 Node pageNode = createPage(write);
                                 CreateLikesRelationship(identityNode, pageNode);
                                 break;
                             }
                             case CREATE_BOTH_AND_HATES_RELATIONSHIP: {
-                                Node identityNode = createIdentity(write);
+                                Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
                                 Node pageNode = createPage(write);
                                 CreateHatesRelationship(identityNode, pageNode);
                                 break;
                             }
 
                             case CREATE_LIKES_RELATIONSHIP: {
-                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
-                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("pageNodeId"));
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "identityNodeId" ));
+                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "pageNodeId" ));
                                 CreateLikesRelationship(identityNode, pageNode);
                                 break;
                             }
                             case CREATE_HATES_RELATIONSHIP: {
-                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
-                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("pageNodeId"));
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "identityNodeId" ));
+                                Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "pageNodeId" ));
                                 CreateHatesRelationship(identityNode, pageNode);
+                                break;
+                            }
+
+                            case CREATE_BOTH_AND_KNOWS_RELATIONSHIP: {
+                                Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
+                                Node identityNode2 = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash2" ));
+                                CreateKnowsRelationship(identityNode, identityNode2);
+                                break;
+                            }
+                            case CREATE_IDENTITY_AND_KNOWS_RELATIONSHIP: {
+                                Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
+                                Node identityNode2 = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId2"));
+                                CreateKnowsRelationship(identityNode, identityNode2);
+                                break;
+                            }
+                            case CREATE_2ND_IDENTITY_AND_KNOWS_RELATIONSHIP: {
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
+                                Node identityNode2 = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash2" ));
+                                CreateKnowsRelationship(identityNode, identityNode2);
+                                break;
+                            }
+                            case CREATE_KNOWS_RELATIONSHIP: {
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
+                                Node identityNode2 = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId2"));
+                                CreateKnowsRelationship(identityNode, identityNode2);
                                 break;
                             }
 
@@ -145,23 +174,6 @@ public class BatchWriterService extends AbstractScheduledService {
         }
     }
 
-    private Node createPage(HashMap write) {
-        Node pageNode = null;
-        if (write.get(DATA) != null &&
-                ((HashMap) write.get(DATA)).containsKey("url") &&
-                ((HashMap) write.get(DATA)).containsKey("title")) {
-            String url = (String) ((HashMap) write.get(DATA)).get("url");
-            String title = (String) ((HashMap) write.get(DATA)).get("title");
-            UniqueFactory.UniqueNodeFactory pageFactory = getUniquePageFactory(graphDb);
-            pageNode = pageFactory.getOrCreate("url", url);
-            if (!pageNode.hasProperty("title")) {
-                pageNode.setProperty("title", title);
-            }
-            ArchetypeServer.urlCache.put(url, pageNode.getId());
-        }
-        return pageNode;
-    }
-
     private void CreateLikesRelationship(Node identityNode, Node pageNode) {
         Relationship rel;
 
@@ -184,16 +196,38 @@ public class BatchWriterService extends AbstractScheduledService {
         }
     }
 
-    private Node createIdentity(HashMap write) {
-        Node identityNode = null;
-        if (write.get( DATA ) != null &&
-                ((HashMap)write.get( DATA )).containsKey( "identityHash" )  ) {
-            String identityHash = (String)((HashMap)write.get( DATA )).get( "identityHash" );
-            UniqueFactory.UniqueNodeFactory identityFactory = getUniqueIdentityFactory( graphDb );
-            identityNode = identityFactory.getOrCreate( "identity", identityHash );
-            ArchetypeServer.identityCache.put(identityHash, identityNode.getId());
+    private void CreateKnowsRelationship(Node identityNode, Node identityNode2) {
+        Relationship rel;
+
+        org.neo4j.graphdb.Path relPath = ONE_HOP_KNOWS_PATH.findSinglePath(identityNode, identityNode2);
+        if (relPath == null) {
+            rel = identityNode.createRelationshipTo(identityNode2, Relationships.KNOWS);
+        } else {
+            rel = relPath.lastRelationship();
         }
+    }
+
+    private Node createIdentity(String identityHash) {
+        UniqueFactory.UniqueNodeFactory identityFactory = getUniqueIdentityFactory( graphDb );
+        Node identityNode = identityFactory.getOrCreate( "identity", identityHash );
+        ArchetypeServer.identityCache.put(identityHash, identityNode.getId());
         return identityNode;
+    }
+
+    private Node createPage(HashMap write) {
+        Node pageNode = null;
+        if (((HashMap) write.get(DATA)).containsKey("url") &&
+                ((HashMap) write.get(DATA)).containsKey("title")) {
+            String url = (String) ((HashMap) write.get(DATA)).get("url");
+            String title = (String) ((HashMap) write.get(DATA)).get("title");
+            UniqueFactory.UniqueNodeFactory pageFactory = getUniquePageFactory(graphDb);
+            pageNode = pageFactory.getOrCreate("url", url);
+            if (!pageNode.hasProperty("title")) {
+                pageNode.setProperty("title", title);
+            }
+            ArchetypeServer.urlCache.put(url, pageNode.getId());
+        }
+        return pageNode;
     }
 
     @Override
