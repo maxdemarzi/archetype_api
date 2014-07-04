@@ -5,6 +5,7 @@ import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 
 import com.google.common.base.Charsets;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -12,11 +13,15 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.crypto.engines.BlowfishEngine;
+import org.bouncycastle.crypto.engines.Salsa20Engine;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.Hex;
 
 public class ArchetypeConstants {
     public static final String ACTION = "action";
@@ -57,7 +62,7 @@ public class ArchetypeConstants {
         return new String(Base64.encode(out));
     }
 
-    public static String decrypt(String name, String keyString)
+    public static String decrypt(String value, String keyString)
             throws Exception {
         BlowfishEngine engine = new BlowfishEngine();
         PaddedBufferedBlockCipher cipher =
@@ -65,7 +70,7 @@ public class ArchetypeConstants {
         StringBuilder result = new StringBuilder();
         KeyParameter key = new KeyParameter(keyString.getBytes(Charsets.UTF_8));
         cipher.init(false, key);
-        byte out[] = Base64.decode(name);
+        byte out[] = Base64.decode(value);
         byte out2[] = new byte[cipher.getOutputSize(out.length)];
         int len2 = cipher.processBytes(out, 0, out.length, out2, 0);
         cipher.doFinal(out2, len2);
@@ -79,12 +84,6 @@ public class ArchetypeConstants {
 
         return result.toString();
     }
-
-
-
-
-
-
 
     private static final int ITERATIONS = 1000;
     private static final int KEY_LENGTH = 256; // bits

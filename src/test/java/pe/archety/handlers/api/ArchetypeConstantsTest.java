@@ -8,12 +8,12 @@ import static org.junit.Assert.assertEquals;
 public class ArchetypeConstantsTest {
 
     @Test
-    public void shouldCreateIdentityUsingEmail() throws Exception {
+    public void shouldEncryptAndDecryptUsingEmails() throws Exception {
         String plainText = "encrypt@me.com";
         String key = "maxdemarzi@gmail.com";
 
-        String cypherText = ArchetypeConstants.encrypt(plainText, key);
-        String decipheredText = ArchetypeConstants.decrypt(cypherText, key);
+        String cypherText = ArchetypeConstants.encrypt( plainText, key );
+        String decipheredText = ArchetypeConstants.decrypt( cypherText, key );
 
         assertEquals( plainText, decipheredText );
     }
