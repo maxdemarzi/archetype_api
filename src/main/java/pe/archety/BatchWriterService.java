@@ -127,25 +127,25 @@ public class BatchWriterService extends AbstractScheduledService {
                             case CREATE_BOTH_AND_KNOWS_RELATIONSHIP: {
                                 Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
                                 Node identityNode2 = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash2" ));
-                                CreateKnowsRelationship(identityNode, identityNode2);
+                                CreateKnowsRelationship( identityNode, identityNode2, (String)((HashMap)write.get( DATA )).get( "encryptedIdentity" ) );
                                 break;
                             }
                             case CREATE_IDENTITY_AND_KNOWS_RELATIONSHIP: {
                                 Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
                                 Node identityNode2 = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId2"));
-                                CreateKnowsRelationship(identityNode, identityNode2);
+                                CreateKnowsRelationship( identityNode, identityNode2, (String)((HashMap)write.get( DATA )).get( "encryptedIdentity" ) );
                                 break;
                             }
                             case CREATE_2ND_IDENTITY_AND_KNOWS_RELATIONSHIP: {
                                 Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
                                 Node identityNode2 = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash2" ));
-                                CreateKnowsRelationship(identityNode, identityNode2);
+                                CreateKnowsRelationship( identityNode, identityNode2, (String)((HashMap)write.get( DATA )).get( "encryptedIdentity" ) );
                                 break;
                             }
                             case CREATE_KNOWS_RELATIONSHIP: {
                                 Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId"));
                                 Node identityNode2 = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get("identityNodeId2"));
-                                CreateKnowsRelationship(identityNode, identityNode2);
+                                CreateKnowsRelationship( identityNode, identityNode2, (String)((HashMap)write.get( DATA )).get( "encryptedIdentity" ) );
                                 break;
                             }
 
@@ -196,12 +196,13 @@ public class BatchWriterService extends AbstractScheduledService {
         }
     }
 
-    private void CreateKnowsRelationship(Node identityNode, Node identityNode2) {
+    private void CreateKnowsRelationship(Node identityNode, Node identityNode2, String encryptedIdentity) {
         Relationship rel;
 
         org.neo4j.graphdb.Path relPath = ONE_HOP_KNOWS_PATH.findSinglePath(identityNode, identityNode2);
         if (relPath == null) {
             rel = identityNode.createRelationshipTo(identityNode2, Relationships.KNOWS);
+            rel.setProperty("encryptedIdentity", encryptedIdentity);
         } else {
             rel = relPath.lastRelationship();
         }

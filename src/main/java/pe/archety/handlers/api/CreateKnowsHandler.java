@@ -196,6 +196,8 @@ public class CreateKnowsHandler implements HttpHandler {
                 write.put( ArchetypeConstants.ACTION, BatchWriterServiceAction.CREATE_KNOWS_RELATIONSHIP );
         }
 
+        data.put( "encryptedIdentity", ArchetypeConstants.encrypt( identity2, identity ) );
+
         write.put( ArchetypeConstants.DATA, data );
         BATCH_WRITER_SERVICE.queue.put( write );
 
