@@ -217,7 +217,7 @@ public class CreateLikesOrHatesHandlerTest {
 
     public static final HashMap<String, Object> identityWithInvalidEmail2 =
             new HashMap<String, Object>() {{
-                put( "p", "booATboo.com" );
+                put( "email", "booATboo.com" );
             }};
 
     public static final HashMap<String, Object> errorInvalidEmailResponse2 =

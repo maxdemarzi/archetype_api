@@ -103,6 +103,128 @@ public class CreateKnowsHandlerTest {
         assertEquals( knows4Response, actual );
     }
 
+    @Test
+    public void shouldNotCreateKnowsWithInvalidEmail() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identityWithInvalidEmail.get( "email" ) + "/knows" )
+                .request( JSON_UTF8 )
+                .post(Entity.entity(objectMapper.writeValueAsString(identity1), JSON_UTF8) );
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidEmailResponse, actual );
+    }
+
+    @Test
+    public void shouldNotCreateKnowsWithInvalidEmail2() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identityWithInvalidEmail2.get( "email" ) + "/knows" )
+                .request( JSON_UTF8 )
+                .post(Entity.entity(objectMapper.writeValueAsString(identity1), JSON_UTF8) );
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidEmailResponse2, actual );
+    }
+
+    @Test
+    public void shouldNotCreateKnowsWithInvalidPhoneNumber() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identityWithInvalidPhoneNumber.get( "phone" ) + "/knows" )
+                .request( JSON_UTF8 )
+                .post(Entity.entity(objectMapper.writeValueAsString(identity1), JSON_UTF8));
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidPhoneNumberResponse, actual );
+    }
+
+    @Test
+    public void shouldNotCreateKnowsWithInvalid2ndEmail() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identity1.get( "email" ) + "/knows" )
+                .request( JSON_UTF8 )
+                .post(Entity.entity(objectMapper.writeValueAsString(identityWithInvalidEmail), JSON_UTF8) );
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidEmailResponse, actual );
+    }
+
+    @Test
+    public void shouldNotCreateKnowsWithInvalid2ndEmail2() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identity1.get( "email" ) + "/knows" )
+                .request( JSON_UTF8 )
+                .post(Entity.entity(objectMapper.writeValueAsString(identityWithInvalidEmail2), JSON_UTF8) );
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidEmailResponse, actual );
+    }
+
+    @Test
+    public void shouldNotCreateKnowsWithInvalid2ndPhoneNumber() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identity1.get( "email" ) + "/knows" )
+                .request( JSON_UTF8 )
+                .post(Entity.entity(objectMapper.writeValueAsString(identityWithInvalidPhoneNumber), JSON_UTF8));
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidPhoneNumberResponse, actual );
+    }
+
+    @Test
+    public void shouldNotCreateKnowsWithGarbageJSON() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identity1.get( "email" ) + "/knows" )
+                .request( JSON_UTF8 )
+                .post(Entity.entity(objectMapper.writeValueAsString("Garbage"), JSON_UTF8));
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorParsingJSONResponse, actual );
+    }
+
+    @Test
+    public void shouldNotCreateKnowsWithGarbage2ndPhoneNumber() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identity1.get( "email" ) + "/knows" )
+                .request( JSON_UTF8 )
+                .post(Entity.entity(objectMapper.writeValueAsString(identityWithMixedUpValues), JSON_UTF8));
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorParsingPhoneNumberResponse, actual );
+    }
+
+
+
     public static final HashMap<String, Object> identity1 =
             new HashMap<String, Object>() {{
                 put( "email", "maxdemarzi@gmail.com" );
@@ -149,5 +271,51 @@ public class CreateKnowsHandlerTest {
                 put( "identity", "+13128675309");
                 put( "identity2", "max@maxdemarzi.com");
                 put( "relationship_type", "KNOWS" );
+            }};
+
+    public static final HashMap<String, Object> identityWithInvalidEmail =
+            new HashMap<String, Object>() {{
+                put( "email", "@boo" );
+            }};
+
+    public static final HashMap<String, Object> errorInvalidEmailResponse =
+            new HashMap<String, Object>() {{
+                put( "error", "Email not valid." );
+            }};
+
+    public static final HashMap<String, Object> identityWithInvalidEmail2 =
+            new HashMap<String, Object>() {{
+                put( "email", "booATboo.com" );
+            }};
+
+    public static final HashMap<String, Object> errorInvalidEmailResponse2 =
+            new HashMap<String, Object>() {{
+                put( "error", "Error Parsing Phone Number." );
+            }};
+
+
+    public static final HashMap<String, Object> identityWithInvalidPhoneNumber =
+            new HashMap<String, Object>() {{
+                put( "phone", "000000000" );
+            }};
+
+    public static final HashMap<String, Object> errorInvalidPhoneNumberResponse =
+            new HashMap<String, Object>() {{
+                put( "error", "Invalid Phone Number." );
+            }};
+
+    public static final HashMap<String, Object> errorParsingPhoneNumberResponse =
+            new HashMap<String, Object>() {{
+                put( "error", "Error Parsing Phone Number." );
+            }};
+
+    public static final HashMap<String, Object> errorParsingJSONResponse =
+            new HashMap<String, Object>() {{
+                put( "error", "Error parsing JSON." );
+            }};
+
+    public static final HashMap<String, Object> identityWithMixedUpValues =
+            new HashMap<String, Object>() {{
+                put( "phone", "maxdemarzi@gmail.com" );
             }};
 }

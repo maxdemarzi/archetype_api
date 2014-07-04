@@ -120,6 +120,11 @@ public class CreateKnowsHandler implements HttpHandler {
             String email = (String)input.get( "email" );
             if( EMAIL_VALIDATOR.isValid( email ) ){
                 identity2 = email;
+            } else {
+                String error = "Email not valid.";
+                exchange.setResponseCode( 400 );
+                exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
+                return;
             }
         } else if( input.containsKey( "phone" ) ){
             Phonenumber.PhoneNumber phoneNumber;
