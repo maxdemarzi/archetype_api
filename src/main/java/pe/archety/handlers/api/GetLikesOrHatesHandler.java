@@ -1,6 +1,9 @@
 package pe.archety.handlers.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
@@ -12,9 +15,13 @@ import pe.archety.Labels;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Logger;
+
+import static pe.archety.ArchetypeConstants.EMAIL_VALIDATOR;
+import static pe.archety.ArchetypeConstants.PHONE_UTIL;
 
 public class GetLikesOrHatesHandler implements HttpHandler {
-
+    private static final Logger logger = Logger.getLogger(GetLikesOrHatesHandler.class.getName());
     private static GraphDatabaseService graphDB;
     private static ObjectMapper objectMapper;
     private RelationshipType relationshipType;
@@ -34,6 +41,35 @@ public class GetLikesOrHatesHandler implements HttpHandler {
 
         String identity = exchange.getAttachment( io.undertow.util.PathTemplateMatch.ATTACHMENT_KEY )
                 .getParameters().get( "identity" );
+
+        if( identity.contains( "@" ) ){
+            if( !EMAIL_VALIDATOR.isValid( identity ) ){
+                String error = "Email not valid.";
+                exchange.setResponseCode( 400 );
+                exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
+                return;
+            }
+        } else {
+            Phonenumber.PhoneNumber phoneNumber;
+            try {
+                phoneNumber = PHONE_UTIL.parse( identity, "US" );
+            } catch (NumberParseException e) {
+                String error = "Error Parsing Phone Number.";
+                logger.severe( error );
+                exchange.setResponseCode( 400 );
+                exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
+                return;
+            }
+
+            if( PHONE_UTIL.isValidNumber( phoneNumber ) ) {
+                identity = PHONE_UTIL.format( phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164 ); // "+41446681800"
+            } else {
+                String error = "Invalid Phone Number.";
+                exchange.setResponseCode( 400 );
+                exchange.getResponseSender().send( "{\"error\":\"" + error + "\"}" );
+                return;
+            }
+        }
 
         String identityHash = ArchetypeConstants.calculateHash(identity);
 

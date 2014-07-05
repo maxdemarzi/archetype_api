@@ -49,10 +49,7 @@ public class GetLikesOrHatesHandlerTest {
 
     private void pupulateDb(GraphDatabaseService db) {
         try ( Transaction tx = db.beginTx() ) {
-            Node identity1Node = db.createNode(Labels.Identity);
-            String identity1 = "maxdemarzi@gmail.com";
-            String identity1Hash = ArchetypeConstants.calculateHash(identity1);
-            identity1Node.setProperty("identity", identity1Hash);
+            Node identity1Node = createIdentity(db, "maxdemarzi@gmail.com");
 
             Node page1Node = db.createNode(Labels.Page);
             page1Node.setProperty("title", "Neo4j");
@@ -65,8 +62,17 @@ public class GetLikesOrHatesHandlerTest {
 
             identity1Node.createRelationshipTo(page2Node, Relationships.HATES);
 
+            Node identity2Node = createIdentity(db, "+13125137509");
+
             tx.success();
         }
+    }
+
+    private Node createIdentity(GraphDatabaseService db, String identity) {
+        Node identityNode = db.createNode(Labels.Identity);
+        String identityHash = ArchetypeConstants.calculateHash(identity);
+        identityNode.setProperty("identity", identityHash);
+        return identityNode;
     }
 
     @After
@@ -104,14 +110,25 @@ public class GetLikesOrHatesHandlerTest {
         assertEquals( 200, code );
         assertEquals( hates1Response, actual );
     }
+
+    @Test
+    public void shouldGetEmptyLikesUsingPhone() throws IOException {
+        Response response = client.target("http://localhost:9090")
+                .register(HashMap.class)
+                .path("/v1/identities/" + identity2.get("phone") + "/likes")
+                .request(JSON_UTF8)
+                .get();
+
+        int code = response.getStatus();
+        ArrayList actual = objectMapper.readValue( response.readEntity( String.class ), ArrayList.class );
+
+        assertEquals( 200, code );
+        assertEquals( likes2Response, actual );
+    }
+
     public static final HashMap<String, Object> identity1 =
             new HashMap<String, Object>() {{
                 put( "email", "maxdemarzi@gmail.com" );
-            }};
-
-    public static final HashMap<String, Object> page1 =
-            new HashMap<String, Object>() {{
-                put( "url", "http://en.wikipedia.org/wiki/Neo4j" );
             }};
 
     public static final ArrayList<HashMap<String, String>> likes1Response = new ArrayList<HashMap<String, String>>(){{
@@ -129,4 +146,12 @@ public class GetLikesOrHatesHandlerTest {
                         }}
         );
     }};
+
+    public static final HashMap<String, Object> identity2 =
+            new HashMap<String, Object>() {{
+                put( "phone", "+13125137509" );
+            }};
+
+    public static final ArrayList<HashMap<String, String>> likes2Response = new ArrayList<>();
+
 }
