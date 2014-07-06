@@ -87,6 +87,7 @@ public class GetLikesOrHatesHandler implements HttpHandler {
                     identityNode = iterator.next();
                     ArchetypeServer.identityCache.put( identityHash, identityNode.getId() );
                 } else {
+                    logger.warning( identity + " not found." );
                     exchange.setResponseCode( 404 );
                     return;
                 }
