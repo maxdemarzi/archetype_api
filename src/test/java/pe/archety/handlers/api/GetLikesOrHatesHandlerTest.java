@@ -161,6 +161,51 @@ public class GetLikesOrHatesHandlerTest {
         assertEquals( 404, code );
     }
 
+    @Test
+    public void shouldNotCreateLikesWithInvalidEmail() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identityWithInvalidEmail.get( "email" ) + "/likes" )
+                .request( JSON_UTF8 )
+                .get();
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidEmailResponse, actual );
+    }
+
+    @Test
+    public void shouldNotCreateLikesWithInvalidEmail2() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identityWithInvalidEmail2.get( "email" ) + "/likes" )
+                .request( JSON_UTF8 )
+                .get();
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidEmailResponse2, actual );
+    }
+
+    @Test
+    public void shouldNotCreateLikesWithInvalidPhoneNumber() throws IOException {
+        Response response = client.target( "http://localhost:9090" )
+                .register( HashMap.class )
+                .path( "/v1/identities/" + identityWithInvalidPhoneNumber.get( "phone" ) + "/likes" )
+                .request( JSON_UTF8 )
+                .get();
+
+        int code = response.getStatus();
+        HashMap actual = objectMapper.readValue( response.readEntity( String.class ), HashMap.class );
+
+        assertEquals( 400, code );
+        assertEquals( errorInvalidPhoneNumberResponse, actual );
+    }
+
     public static final HashMap<String, Object> identity1 =
             new HashMap<String, Object>() {{
                 put( "email", "maxdemarzi@gmail.com" );
@@ -195,11 +240,6 @@ public class GetLikesOrHatesHandlerTest {
                 put( "email", "idont@exist.com" );
             }};
 
-    public static final HashMap<String, Object> errorInvalidEmailResponse2 =
-            new HashMap<String, Object>() {{
-                put( "error", "Error Parsing Phone Number." );
-            }};
-
     public static final HashMap<String, Object> identity4 =
             new HashMap<String, Object>() {{
                 put( "email", "max@maxdemarzi.com" );
@@ -218,5 +258,36 @@ public class GetLikesOrHatesHandlerTest {
         );
 
     }};
+
+    public static final HashMap<String, Object> identityWithInvalidEmail =
+            new HashMap<String, Object>() {{
+                put( "email", "@boo" );
+            }};
+
+    public static final HashMap<String, Object> errorInvalidEmailResponse =
+            new HashMap<String, Object>() {{
+                put( "error", "Email not valid." );
+            }};
+
+    public static final HashMap<String, Object> identityWithInvalidEmail2 =
+            new HashMap<String, Object>() {{
+                put( "email", "booATboo.com" );
+            }};
+
+    public static final HashMap<String, Object> errorInvalidEmailResponse2 =
+            new HashMap<String, Object>() {{
+                put( "error", "Error Parsing Phone Number." );
+            }};
+
+
+    public static final HashMap<String, Object> identityWithInvalidPhoneNumber =
+            new HashMap<String, Object>() {{
+                put( "phone", "000000000" );
+            }};
+
+    public static final HashMap<String, Object> errorInvalidPhoneNumberResponse =
+            new HashMap<String, Object>() {{
+                put( "error", "Invalid Phone Number." );
+            }};
 
 }
