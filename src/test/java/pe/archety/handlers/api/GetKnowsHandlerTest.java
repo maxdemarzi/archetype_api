@@ -1,6 +1,5 @@
 package pe.archety.handlers.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
@@ -11,13 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.test.TestGraphDatabaseFactory;
 import pe.archety.ArchetypeConstants;
 import pe.archety.Labels;
 import pe.archety.Relationships;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,52 +25,41 @@ import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 import static pe.archety.ArchetypeServer.JSON_UTF8;
 
-public class GetLikesOrHatesHandlerTest {
+public class GetKnowsHandlerTest {
     private static GraphDatabaseService db;
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static Undertow undertow;
     private static final JerseyClient client = JerseyClientBuilder.createClient();
 
     @Before
-    public void setUp() throws JsonProcessingException {
+    public void setUp() throws Exception {
         db = new TestGraphDatabaseFactory().newImpermanentDatabase();
         pupulateDb(db);
         undertow = Undertow.builder()
                 .addHttpListener( 9090, "localhost" )
                 .setHandler(new RoutingHandler()
-                                .add( "GET", "/v1/identities/{identity}/likes", new GetLikesOrHatesHandler(db, objectMapper, Relationships.LIKES))
-                                .add( "GET", "/v1/identities/{identity}/hates", new GetLikesOrHatesHandler(db, objectMapper, Relationships.HATES))
+                                .add( "GET", "/v1/identities/{identity}/knows", new GetKnowsHandler( db, objectMapper ))
                 )
                 .build();
         undertow.start();
 
     }
 
-    private void pupulateDb(GraphDatabaseService db) {
+    private void pupulateDb(GraphDatabaseService db) throws Exception {
         try ( Transaction tx = db.beginTx() ) {
             Node identity1Node = createIdentity(db, "maxdemarzi@gmail.com");
-
-            Node page1Node = createPage(db, "Neo4j");
-            identity1Node.createRelationshipTo(page1Node, Relationships.LIKES);
-
-            Node page2Node = createPage(db, "Mongodb");
-            identity1Node.createRelationshipTo(page2Node, Relationships.HATES);
-
             Node identity2Node = createIdentity(db, "+13125137509");
-
+            Relationship rel1 = identity1Node.createRelationshipTo(identity2Node, Relationships.KNOWS);
+            rel1.setProperty("encryptedIdentity", ArchetypeConstants.encrypt("+13125137509", "maxdemarzi@gmail.com" ));
+            
             Node identity3Node = createIdentity(db, "max@maxdemarzi.com");
-            identity3Node.createRelationshipTo(page1Node, Relationships.LIKES);
-            identity3Node.createRelationshipTo(page2Node, Relationships.LIKES);
+            Relationship rel2 = identity3Node.createRelationshipTo(identity1Node, Relationships.KNOWS);
+            rel2.setProperty("encryptedIdentity", ArchetypeConstants.encrypt("maxdemarzi@gmail.com", "max@maxdemarzi.com" ));
+            Relationship rel3 = identity3Node.createRelationshipTo(identity2Node, Relationships.KNOWS);
+            rel3.setProperty("encryptedIdentity", ArchetypeConstants.encrypt("+13125137509", "max@maxdemarzi.com" ));
 
             tx.success();
         }
-    }
-
-    private Node createPage(GraphDatabaseService db, String title) {
-        Node pageNode = db.createNode(Labels.Page);
-        pageNode.setProperty("title", title);
-        pageNode.setProperty("url", ArchetypeConstants.URLPREFIX + title);
-        return pageNode;
     }
 
     private Node createIdentity(GraphDatabaseService db, String identity) {
@@ -88,10 +76,10 @@ public class GetLikesOrHatesHandlerTest {
     }
 
     @Test
-    public void shouldGetLikesUsingEmail() throws IOException {
+    public void shouldGetKnowsUsingEmail() throws IOException {
         Response response = client.target("http://localhost:9090")
                 .register(HashMap.class)
-                .path("/v1/identities/" + identity1.get("email") + "/likes")
+                .path("/v1/identities/" + identity1.get("email") + "/knows")
                 .request(JSON_UTF8)
                 .get();
 
@@ -103,26 +91,10 @@ public class GetLikesOrHatesHandlerTest {
     }
 
     @Test
-    public void shouldGetHatesUsingEmail() throws IOException {
+    public void shouldGetMultipleKnowsUsingEmail() throws IOException {
         Response response = client.target("http://localhost:9090")
                 .register(HashMap.class)
-                .path("/v1/identities/" + identity1.get("email") + "/hates")
-                .request(JSON_UTF8)
-                .get();
-
-        int code = response.getStatus();
-        ArrayList<HashMap<String, String>> actual = objectMapper.readValue( response.readEntity( String.class ), ArrayList.class );
-
-        assertEquals( 200, code );
-        assertEquals( hates1Response, actual );
-    }
-
-
-    @Test
-    public void shouldGetMultipleLikesUsingEmail() throws IOException {
-        Response response = client.target("http://localhost:9090")
-                .register(HashMap.class)
-                .path("/v1/identities/" + identity4.get("email") + "/likes")
+                .path("/v1/identities/" + identity4.get("email") + "/knows")
                 .request(JSON_UTF8)
                 .get();
 
@@ -134,10 +106,10 @@ public class GetLikesOrHatesHandlerTest {
     }
 
     @Test
-    public void shouldGetEmptyLikesUsingPhone() throws IOException {
+    public void shouldGetEmptyKnowsUsingPhone() throws IOException {
         Response response = client.target("http://localhost:9090")
                 .register(HashMap.class)
-                .path("/v1/identities/" + identity2.get("phone") + "/likes")
+                .path("/v1/identities/" + identity2.get("phone") + "/knows")
                 .request(JSON_UTF8)
                 .get();
 
@@ -149,10 +121,10 @@ public class GetLikesOrHatesHandlerTest {
     }
 
     @Test
-    public void shouldNotGetLikesFromUnknownIdentity() throws IOException {
+    public void shouldNotGetKnowsFromUnknownIdentity() throws IOException {
         Response response = client.target("http://localhost:9090")
                 .register(HashMap.class)
-                .path("/v1/identities/" + identity3.get("email") + "/likes")
+                .path("/v1/identities/" + identity3.get("email") + "/knows")
                 .request(JSON_UTF8)
                 .get();
 
@@ -162,10 +134,10 @@ public class GetLikesOrHatesHandlerTest {
     }
 
     @Test
-    public void shouldNotGetLikesWithInvalidEmail() throws IOException {
+    public void shouldNotGetKnowsWithInvalidEmail() throws IOException {
         Response response = client.target( "http://localhost:9090" )
                 .register( HashMap.class )
-                .path( "/v1/identities/" + identityWithInvalidEmail.get( "email" ) + "/likes" )
+                .path( "/v1/identities/" + identityWithInvalidEmail.get( "email" ) + "/knows" )
                 .request( JSON_UTF8 )
                 .get();
 
@@ -177,10 +149,10 @@ public class GetLikesOrHatesHandlerTest {
     }
 
     @Test
-    public void shouldNotGetLikesWithInvalidEmail2() throws IOException {
+    public void shouldNotGetKnowsWithInvalidEmail2() throws IOException {
         Response response = client.target( "http://localhost:9090" )
                 .register( HashMap.class )
-                .path( "/v1/identities/" + identityWithInvalidEmail2.get( "email" ) + "/likes" )
+                .path( "/v1/identities/" + identityWithInvalidEmail2.get( "email" ) + "/knows" )
                 .request( JSON_UTF8 )
                 .get();
 
@@ -192,10 +164,10 @@ public class GetLikesOrHatesHandlerTest {
     }
 
     @Test
-    public void shouldNotGetLikesWithInvalidPhoneNumber() throws IOException {
+    public void shouldNotGetKnowsWithInvalidPhoneNumber() throws IOException {
         Response response = client.target( "http://localhost:9090" )
                 .register( HashMap.class )
-                .path( "/v1/identities/" + identityWithInvalidPhoneNumber.get( "phone" ) + "/likes" )
+                .path( "/v1/identities/" + identityWithInvalidPhoneNumber.get( "phone" ) + "/knows" )
                 .request( JSON_UTF8 )
                 .get();
 
@@ -213,16 +185,7 @@ public class GetLikesOrHatesHandlerTest {
 
     public static final ArrayList<HashMap<String, String>> likes1Response = new ArrayList<HashMap<String, String>>(){{
         add( new HashMap<String, String>() {{
-                put( "title", "Neo4j");
-                put( "url", "http://en.wikipedia.org/wiki/Neo4j" );
-             }}
-        );
-    }};
-
-    public static final ArrayList<HashMap<String, String>> hates1Response = new ArrayList<HashMap<String, String>>(){{
-        add( new HashMap<String, String>() {{
-                put( "title", "Mongodb");
-                put( "url", "http://en.wikipedia.org/wiki/Mongodb" );
+                 put( "identity", "+13125137509");
              }}
         );
     }};
@@ -247,13 +210,11 @@ public class GetLikesOrHatesHandlerTest {
 
     public static final ArrayList<HashMap<String, String>> likes3Response = new ArrayList<HashMap<String, String>>(){{
         add( new HashMap<String, String>() {{
-                 put( "title", "Neo4j");
-                 put( "url", "http://en.wikipedia.org/wiki/Neo4j" );
+                 put( "identity", "maxdemarzi@gmail.com");
              }}
         );
         add( new HashMap<String, String>() {{
-                 put( "title", "Mongodb");
-                 put( "url", "http://en.wikipedia.org/wiki/Mongodb" );
+                 put( "identity", "+13125137509");
              }}
         );
 
@@ -289,5 +250,4 @@ public class GetLikesOrHatesHandlerTest {
             new HashMap<String, Object>() {{
                 put( "error", "Invalid Phone Number." );
             }};
-
 }
