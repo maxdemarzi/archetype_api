@@ -18,7 +18,8 @@ Compile it and run it:
 Go to http://localhost:8079 for administrative interface:
 
     GET     /                                 # Hello World
-    GET     /v1/hello/{name}                  # Example Parameters
+    GET     /v1/hello/{name}                  # Example Path Parameters
+    GET     /v1/hi?name={name}                # Example Query Parameters
     GET     /v1/admin/warmup                  # Warm up database
     GET     /v1/admin/wikipedia               # Add url property to Pages
     GET     /v1/admin/initialize              # Create Indexes

@@ -48,6 +48,7 @@ public class ArchetypeServer {
                                 .add( "GET", "/v1/admin/initialize", new InitializeHandler( graphDb ) )
                                 .add( "GET", "/v1/admin/wikipedia", new WikipediaHandler( graphDb ) )
                                 .add( "GET", "/v1/hello/{name}", new HelloNameHandler() )
+                                .add( "GET", "/v1/hi", new HiNameHandler() )
                 )
                 .setWorkerThreads( 200 ).build().start();
 

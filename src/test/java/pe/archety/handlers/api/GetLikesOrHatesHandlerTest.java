@@ -17,7 +17,6 @@ import pe.archety.ArchetypeConstants;
 import pe.archety.Labels;
 import pe.archety.Relationships;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
