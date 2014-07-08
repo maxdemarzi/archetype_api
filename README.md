@@ -38,3 +38,8 @@ Go to http://localhost:8080 for API:
 
     POST    /v1/pages                                   # Create page (takes title or url) as parameter
 
+
+TODO:
+    
+    Identity Registration
+    Wall/Events/Posts (?)

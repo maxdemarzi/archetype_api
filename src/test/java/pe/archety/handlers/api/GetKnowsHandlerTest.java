@@ -14,6 +14,7 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.test.TestGraphDatabaseFactory;
 import pe.archety.ArchetypeConstants;
+import pe.archety.ArchetypeServer;
 import pe.archety.Labels;
 import pe.archety.Relationships;
 
@@ -33,8 +34,11 @@ public class GetKnowsHandlerTest {
 
     @Before
     public void setUp() throws Exception {
+        ArchetypeServer.identityCache.invalidateAll();
+        ArchetypeServer.urlCache.invalidateAll();
+
         db = new TestGraphDatabaseFactory().newImpermanentDatabase();
-        pupulateDb(db);
+        populateDb(db);
         undertow = Undertow.builder()
                 .addHttpListener( 9090, "localhost" )
                 .setHandler(new RoutingHandler()
@@ -45,7 +49,7 @@ public class GetKnowsHandlerTest {
 
     }
 
-    private void pupulateDb(GraphDatabaseService db) throws Exception {
+    private void populateDb(GraphDatabaseService db) throws Exception {
         try ( Transaction tx = db.beginTx() ) {
             Node identity1Node = createIdentity(db, "maxdemarzi@gmail.com");
             Node identity2Node = createIdentity(db, "+13125137509");

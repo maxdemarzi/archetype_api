@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.test.TestGraphDatabaseFactory;
@@ -32,7 +31,7 @@ public class WikipediaHandlerTest {
     @Before
     public void setUp() throws JsonProcessingException {
         db = new TestGraphDatabaseFactory().newImpermanentDatabase();
-        pupulateDb(db);
+        populateDb(db);
         undertow = Undertow.builder()
                 .addHttpListener(9090, "localhost")
                 .setHandler(new RoutingHandler()
@@ -43,7 +42,7 @@ public class WikipediaHandlerTest {
 
     }
 
-    private void pupulateDb(GraphDatabaseService db) {
+    private void populateDb(GraphDatabaseService db) {
         try (Transaction tx = db.beginTx()) {
             Node identity1Node = createIdentity(db, "maxdemarzi@gmail.com");
 

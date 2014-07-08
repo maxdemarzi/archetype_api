@@ -30,7 +30,7 @@ public class InitializeHandlerTest {
     @Before
     public void setUp() throws JsonProcessingException {
         db = new TestGraphDatabaseFactory().newImpermanentDatabase();
-        pupulateDb(db);
+        populateDb(db);
         undertow = Undertow.builder()
                 .addHttpListener(9090, "localhost")
                 .setHandler(new RoutingHandler()
@@ -41,7 +41,7 @@ public class InitializeHandlerTest {
 
     }
 
-    private void pupulateDb(GraphDatabaseService db) {
+    private void populateDb(GraphDatabaseService db) {
         try (Transaction tx = db.beginTx()) {
             Node identity1Node = createIdentity(db, "maxdemarzi@gmail.com");
 

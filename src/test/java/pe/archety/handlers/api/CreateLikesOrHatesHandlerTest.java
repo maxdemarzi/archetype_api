@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.test.TestGraphDatabaseFactory;
+import pe.archety.ArchetypeServer;
 import pe.archety.Relationships;
 
 import javax.ws.rs.client.Entity;
@@ -29,6 +30,9 @@ public class CreateLikesOrHatesHandlerTest {
 
     @Before
     public void setUp() {
+        ArchetypeServer.identityCache.invalidateAll();
+        ArchetypeServer.urlCache.invalidateAll();
+
         db = new TestGraphDatabaseFactory().newImpermanentDatabase();
         undertow = Undertow.builder()
                 .addHttpListener( 9090, "localhost" )

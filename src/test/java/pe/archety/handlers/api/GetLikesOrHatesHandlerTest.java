@@ -14,6 +14,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.test.TestGraphDatabaseFactory;
 import pe.archety.ArchetypeConstants;
+import pe.archety.ArchetypeServer;
 import pe.archety.Labels;
 import pe.archety.Relationships;
 
@@ -33,8 +34,10 @@ public class GetLikesOrHatesHandlerTest {
 
     @Before
     public void setUp() throws JsonProcessingException {
+        ArchetypeServer.identityCache.invalidateAll();
+        ArchetypeServer.urlCache.invalidateAll();
         db = new TestGraphDatabaseFactory().newImpermanentDatabase();
-        pupulateDb(db);
+        populateDB(db);
         undertow = Undertow.builder()
                 .addHttpListener( 9090, "localhost" )
                 .setHandler(new RoutingHandler()
@@ -43,10 +46,9 @@ public class GetLikesOrHatesHandlerTest {
                 )
                 .build();
         undertow.start();
-
     }
 
-    private void pupulateDb(GraphDatabaseService db) {
+    private void populateDB(GraphDatabaseService db) {
         try ( Transaction tx = db.beginTx() ) {
             Node identity1Node = createIdentity(db, "maxdemarzi@gmail.com");
 
