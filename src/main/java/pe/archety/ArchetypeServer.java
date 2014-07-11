@@ -68,6 +68,7 @@ public class ArchetypeServer {
                                 .add( "GET", "/v1/identities/{identity}/knows", new GetKnowsHandler( graphDb, objectMapper ) )
                                 .add( "POST", "/v1/pages", new CreatePageHandler( graphDb, objectMapper ) )
                                 .add( "POST", "/v1/tokens", new CreateTokenHandler( graphDb, objectMapper ) )
+                                .add( "GET",  "/v1/tokens/{token}", new GetTokenHandler( graphDb ) )
                 )
                 .setWorkerThreads(200).build().start();
 

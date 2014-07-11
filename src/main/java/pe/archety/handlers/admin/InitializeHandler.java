@@ -32,6 +32,12 @@ public class InitializeHandler implements HttpHandler {
             schema.constraintFor( Labels.Identity )
                     .assertPropertyIsUnique("identity")
                     .create();
+            schema.constraintFor( Labels.Identity )
+                    .assertPropertyIsUnique("generatedToken")
+                    .create();
+            schema.constraintFor( Labels.Identity )
+                    .assertPropertyIsUnique("authenticatedToken")
+                    .create();
             schema.constraintFor( Labels.Page )
                     .assertPropertyIsUnique("url")
                     .create();
