@@ -38,7 +38,9 @@ Go to http://localhost:8080 for API:
 
     POST    /v1/pages                                   # Create page (takes title or url) as parameter
 
-
+    POST    /v1/tokens                                  # Create a new potential token (takes e-mail/phone)
+    GET     /v1/tokens/{signature}                      # Get an identity token given signature
+     
 TODO:
     
     Identity Registration

@@ -59,14 +59,15 @@ public class ArchetypeServer {
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
                                 .add( "GET",  "/v1/identities/{identity}", new GetIdentityHandler( graphDb, objectMapper ) )
-                                .add( "POST", "/v1/identities", new CreateIdentityHandler(graphDb, objectMapper))
-                                .add( "POST", "/v1/identities/{identity}/likes", new CreateLikesOrHatesHandler(graphDb, objectMapper, Relationships.LIKES.name()))
-                                .add( "GET", "/v1/identities/{identity}/likes", new GetLikesOrHatesHandler( graphDb, objectMapper, Relationships.LIKES ))
+                                .add( "POST", "/v1/identities", new CreateIdentityHandler( graphDb, objectMapper ) )
+                                .add( "POST", "/v1/identities/{identity}/likes", new CreateLikesOrHatesHandler( graphDb, objectMapper, Relationships.LIKES.name() ) )
+                                .add( "GET", "/v1/identities/{identity}/likes", new GetLikesOrHatesHandler( graphDb, objectMapper, Relationships.LIKES ) )
                                 .add( "POST", "/v1/identities/{identity}/hates", new CreateLikesOrHatesHandler( graphDb, objectMapper, Relationships.HATES.name() ) )
-                                .add( "GET", "/v1/identities/{identity}/hates", new GetLikesOrHatesHandler( graphDb, objectMapper, Relationships.HATES ))
+                                .add( "GET", "/v1/identities/{identity}/hates", new GetLikesOrHatesHandler( graphDb, objectMapper, Relationships.HATES ) )
                                 .add( "POST", "/v1/identities/{identity}/knows", new CreateKnowsHandler( graphDb, objectMapper ) )
                                 .add( "GET", "/v1/identities/{identity}/knows", new GetKnowsHandler( graphDb, objectMapper ) )
-                                .add( "POST", "/v1/pages", new CreatePageHandler(graphDb, objectMapper))
+                                .add( "POST", "/v1/pages", new CreatePageHandler( graphDb, objectMapper ) )
+                                .add( "POST", "/v1/tokens", new CreateTokenHandler( graphDb, objectMapper ) )
                 )
                 .setWorkerThreads(200).build().start();
 
