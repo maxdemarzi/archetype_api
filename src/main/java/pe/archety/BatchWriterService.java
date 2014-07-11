@@ -8,12 +8,14 @@ import org.neo4j.graphdb.index.UniqueFactory;
 import org.neo4j.graphalgo.GraphAlgoFactory;
 import org.neo4j.graphalgo.PathFinder;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.security.SecureRandom;
 
 import static pe.archety.ArchetypeConstants.DATA;
 import static pe.archety.ArchetypeConstants.ACTION;
@@ -27,6 +29,7 @@ public class BatchWriterService extends AbstractScheduledService {
     private static final PathFinder<Path> ONE_HOP_HATES_PATH = GraphAlgoFactory.shortestPath( HATES_EXPANDER, 1 );
     private static final PathExpander KNOWS_EXPANDER = PathExpanders.forTypeAndDirection( Relationships.KNOWS, Direction.OUTGOING );
     private static final PathFinder<Path> ONE_HOP_KNOWS_PATH = GraphAlgoFactory.shortestPath( KNOWS_EXPANDER, 1 );
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private GraphDatabaseService graphDb;
     public LinkedBlockingQueue<HashMap<String, Object>> queue = new LinkedBlockingQueue<>();
@@ -78,6 +81,20 @@ public class BatchWriterService extends AbstractScheduledService {
                                 Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
                                 Node pageNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "pageNodeId" ));
                                 CreateHatesRelationship(identityNode, pageNode);
+                                break;
+                            }
+
+                            case CREATE_IDENTITY_WITH_TOKEN: {
+                                Node identityNode = createIdentity((String)((HashMap)write.get( DATA )).get( "identityHash" ));
+                                identityNode.setProperty( "generatedToken", createToken() );
+                                emailTokenAsync((String)((HashMap)write.get( DATA )).get( "identity" ) );
+                                break;
+                            }
+
+                            case CREATE_TOKEN: {
+                                Node identityNode = graphDb.getNodeById((Long) ((HashMap) write.get(DATA)).get( "identityNodeId" ));
+                                identityNode.setProperty( "generatedToken", createToken() );
+                                emailTokenAsync((String)((HashMap)write.get( DATA )).get( "identity" ) );
                                 break;
                             }
 
@@ -172,6 +189,16 @@ public class BatchWriterService extends AbstractScheduledService {
                 System.out.printf("Performed a set of transactions with %d writes in  %d [msec] @ %s \n", writes.size(), (System.nanoTime() - startTime) / 1000000, currently.toDateTimeISO());
             }
         }
+    }
+
+    private void emailTokenAsync(String identity) {
+        // TODO: Create me
+    }
+
+    private String createToken() {
+        byte bytes[] = new byte[64];
+        SECURE_RANDOM.nextBytes(bytes);
+        return String.format( "%x", new BigInteger(bytes)).substring( 0, 64 );
     }
 
     private void CreateLikesRelationship(Node identityNode, Node pageNode) {

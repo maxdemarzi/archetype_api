@@ -5,7 +5,6 @@ import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
 
 import com.google.common.base.Charsets;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -13,15 +12,11 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.bouncycastle.crypto.CryptoException;
-import org.bouncycastle.crypto.StreamCipher;
 import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.crypto.engines.BlowfishEngine;
-import org.bouncycastle.crypto.engines.Salsa20Engine;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.util.encoders.Base64;
-import org.bouncycastle.util.encoders.Hex;
 
 public class ArchetypeConstants {
     public static final String ACTION = "action";
@@ -41,7 +36,6 @@ public class ArchetypeConstants {
         digest.doFinal(retValue, 0);
         return Base64.toBase64String(retValue);
     }
-
 
     public static String encrypt(String value, String keyString)
             throws Exception {

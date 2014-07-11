@@ -104,6 +104,7 @@ public class CreateTokenHandler implements HttpHandler {
                 data.put( "identityNodeId", identityNodeId );
             }
 
+            data.put("identity", identity);
             write.put(ArchetypeConstants.DATA, data);
             BATCH_WRITER_SERVICE.queue.put(write);
 
