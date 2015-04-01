@@ -214,11 +214,11 @@ public class GetKnowsHandlerTest {
 
     public static final ArrayList<HashMap<String, String>> likes3Response = new ArrayList<HashMap<String, String>>(){{
         add( new HashMap<String, String>() {{
-                 put( "identity", "maxdemarzi@gmail.com");
+                 put( "identity", "+13125137509");
              }}
         );
         add( new HashMap<String, String>() {{
-                 put( "identity", "+13125137509");
+                 put( "identity", "maxdemarzi@gmail.com");
              }}
         );
 
