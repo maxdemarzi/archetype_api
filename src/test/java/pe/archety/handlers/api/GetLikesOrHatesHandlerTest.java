@@ -248,13 +248,13 @@ public class GetLikesOrHatesHandlerTest {
 
     public static final ArrayList<HashMap<String, String>> likes3Response = new ArrayList<HashMap<String, String>>(){{
         add( new HashMap<String, String>() {{
-                 put( "title", "Neo4j");
-                 put( "url", "http://en.wikipedia.org/wiki/Neo4j" );
+                 put( "title", "Mongodb");
+                 put( "url", "http://en.wikipedia.org/wiki/Mongodb" );
              }}
         );
         add( new HashMap<String, String>() {{
-                 put( "title", "Mongodb");
-                 put( "url", "http://en.wikipedia.org/wiki/Mongodb" );
+                 put( "title", "Neo4j");
+                 put( "url", "http://en.wikipedia.org/wiki/Neo4j" );
              }}
         );
 

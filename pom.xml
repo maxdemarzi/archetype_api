@@ -18,8 +18,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <neo4jVersion>2.0.3</neo4jVersion>
-        <undertowVersion>1.1.0.Beta2</undertowVersion>
+        <neo4jVersion>2.2.0</neo4jVersion>
+        <undertowVersion>1.2.0.Beta10</undertowVersion>
         <guavaVersion>17.0</guavaVersion>
         <joda.version>2.3</joda.version>
         <jacksonVersion>2.4.1</jacksonVersion>
@@ -46,17 +46,25 @@
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-ha</artifactId>
-            <version>${neo4jVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j</groupId>
             <artifactId>neo4j-kernel</artifactId>
             <type>test-jar</type>
             <version>${neo4jVersion}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-io</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+            <version>${neo4jVersion}</version>
+        </dependency>
+
         <!-- Misc. utilities) -->
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.12</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -133,16 +141,16 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.3</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
 
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.5.3</version>
                 <configuration>
                     <archive>
                         <manifest>

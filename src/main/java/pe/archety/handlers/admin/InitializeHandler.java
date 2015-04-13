@@ -42,7 +42,9 @@ public class InitializeHandler implements HttpHandler {
                     .assertPropertyIsUnique("url")
                     .create();
             tx.success();
+        }
 
+        try (Transaction tx = db.beginTx()) {
             db.index().forNodes( "node_auto_index",
                     MapUtil.stringMap( IndexManager.PROVIDER, "lucene",
                                        "type", "fulltext",

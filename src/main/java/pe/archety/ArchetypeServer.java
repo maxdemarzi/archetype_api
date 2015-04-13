@@ -7,7 +7,7 @@ import com.google.common.net.MediaType;
 import io.undertow.Undertow;
 import io.undertow.server.RoutingHandler;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import pe.archety.handlers.admin.*;
 import pe.archety.handlers.api.*;
 
@@ -17,8 +17,8 @@ public class ArchetypeServer {
     public static final String TEXT_PLAIN = MediaType.PLAIN_TEXT_UTF_8.toString();
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String STOREDIR = "/home/shroot/graphipedia/neo4j/data/graph.db";
-    private static final String CONFIG = "/home/shroot/graphipedia/neo4j/conf/neo4j.properties";
+    private static final String STOREDIR = "/Applications/neo4j/archetype-neo4j-community-2.2.0/data/graph.db";
+    private static final String CONFIG = "/Applications/neo4j/archetype-neo4j-community-2.2.0/conf/neo4j.properties";
 
     private static GraphDatabaseService graphDb;
 
@@ -28,7 +28,8 @@ public class ArchetypeServer {
     public static final Cache<String, Long> urlCache = CacheBuilder.newBuilder().maximumSize( 11_000_000 ).build();
 
     public static void main(final String[] args) {
-        graphDb = new HighlyAvailableGraphDatabaseFactory()
+
+        graphDb = new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder( STOREDIR )
                 .loadPropertiesFromFile( CONFIG )
                 .newGraphDatabase();
@@ -39,7 +40,7 @@ public class ArchetypeServer {
 
         // Administrative server accessible internally only
         Undertow.builder()
-                .addHttpListener( 8079, "archety.pe" )
+                .addHttpListener( 8077, "localhost" )
                 .setBufferSize( 1024 * 16 )
                 .setIoThreads( Runtime.getRuntime().availableProcessors() * 2 ) //this seems slightly faster in some configurations
                 .setHandler( new RoutingHandler()
@@ -54,7 +55,7 @@ public class ArchetypeServer {
 
         // Public API
         Undertow.builder()
-                .addHttpListener( 8080, "archety.pe" )
+                .addHttpListener( 8078, "localhost" )
                 .setBufferSize( 1024 * 16 )
                 .setIoThreads(Runtime.getRuntime().availableProcessors() * 2) //this seems slightly faster in some configurations
                 .setHandler(new RoutingHandler()
